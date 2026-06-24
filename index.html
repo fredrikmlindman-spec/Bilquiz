@@ -1,0 +1,1608 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lindmans bilquiz</title>
+  <style>
+    :root {
+      --bg: #f6f7f2;
+      --surface: #ffffff;
+      --surface-soft: #eef5f3;
+      --ink: #18212f;
+      --muted: #667085;
+      --line: #d8dfda;
+      --accent: #0f766e;
+      --accent-strong: #0b5c56;
+      --blue: #2563eb;
+      --amber: #b45309;
+      --green: #15803d;
+      --green-bg: #dcfce7;
+      --red: #b91c1c;
+      --red-bg: #fee2e2;
+      --shadow: 0 18px 45px rgba(24, 33, 47, 0.12);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 34rem),
+        linear-gradient(135deg, #fbfcf8 0%, var(--bg) 48%, #eef2ff 100%);
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    label.ghost-button {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .app {
+      width: min(100%, 980px);
+      margin: 0 auto;
+      padding: 18px 14px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: var(--radius);
+      color: #fff;
+      background: var(--ink);
+      box-shadow: 0 10px 24px rgba(24, 33, 47, 0.18);
+      font-weight: 800;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .tab-button,
+    .ghost-button,
+    .primary-button,
+    .danger-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      user-select: none;
+      box-shadow:
+        0 2px 0 rgba(24, 33, 47, 0.16),
+        0 8px 18px rgba(24, 33, 47, 0.08);
+      transition:
+        transform 140ms ease,
+        box-shadow 140ms ease,
+        background-color 140ms ease,
+        border-color 140ms ease,
+        color 140ms ease;
+    }
+
+    .tab-button {
+      color: #24405f;
+      background: #ffffff;
+      border-color: #aebbd0;
+    }
+
+    .tab-button.is-active {
+      color: #fff;
+      background: var(--ink);
+      border-color: var(--ink);
+      box-shadow:
+        0 3px 0 #0b1220,
+        0 12px 24px rgba(24, 33, 47, 0.16);
+    }
+
+    .primary-button {
+      color: #fff;
+      background: var(--accent);
+      border-color: #0a5c56;
+      box-shadow:
+        0 3px 0 #064e49,
+        0 12px 24px rgba(15, 118, 110, 0.22);
+    }
+
+    .primary-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      background: var(--accent-strong);
+      border-color: var(--accent-strong);
+    }
+
+    .ghost-button {
+      color: #16324f;
+      background: #fff;
+      border-color: #aebbd0;
+    }
+
+    .tab-button:hover:not(.is-active),
+    .ghost-button:hover {
+      transform: translateY(-1px);
+      background: #f8fbff;
+      border-color: #7c8da6;
+      box-shadow:
+        0 3px 0 rgba(24, 33, 47, 0.18),
+        0 12px 22px rgba(24, 33, 47, 0.12);
+    }
+
+    .danger-button {
+      color: #fff;
+      background: var(--red);
+      border-color: #8f1520;
+      box-shadow:
+        0 3px 0 #7f1d1d,
+        0 12px 24px rgba(185, 28, 28, 0.18);
+    }
+
+    .danger-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      background: #991b1b;
+    }
+
+    .tab-button:active,
+    .ghost-button:active,
+    .primary-button:active:not(:disabled),
+    .danger-button:active:not(:disabled) {
+      transform: translateY(1px);
+      box-shadow:
+        0 1px 0 rgba(24, 33, 47, 0.18),
+        0 5px 12px rgba(24, 33, 47, 0.10);
+    }
+
+    .tab-button:focus-visible,
+    .ghost-button:focus-visible,
+    .primary-button:focus-visible,
+    .danger-button:focus-visible,
+    .quiz-card:focus-visible,
+    .option-button:focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.35);
+      outline-offset: 2px;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.is-active {
+      display: block;
+    }
+
+    .panel {
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(216, 223, 218, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel + .panel {
+      margin-top: 14px;
+    }
+
+    .panel-header {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .panel-header h2,
+    .panel-header h3 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    .panel-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .quiz-card {
+      display: grid;
+      gap: 10px;
+      position: relative;
+      min-height: 126px;
+      padding: 14px;
+      padding-right: 38px;
+      text-align: left;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #aebbd0;
+      border-radius: var(--radius);
+      box-shadow:
+        0 2px 0 rgba(24, 33, 47, 0.12),
+        0 8px 18px rgba(24, 33, 47, 0.07);
+      transition:
+        transform 140ms ease,
+        box-shadow 140ms ease,
+        background-color 140ms ease,
+        border-color 140ms ease;
+    }
+
+    .quiz-card::after {
+      content: "";
+      position: absolute;
+      top: 18px;
+      right: 16px;
+      width: 9px;
+      height: 9px;
+      border-top: 2px solid #64748b;
+      border-right: 2px solid #64748b;
+      transform: rotate(45deg);
+    }
+
+    .quiz-card:hover,
+    .quiz-card.is-selected {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      box-shadow:
+        0 3px 0 rgba(15, 118, 110, 0.25),
+        0 14px 28px rgba(15, 118, 110, 0.14);
+    }
+
+    .quiz-card.is-selected {
+      background: var(--surface-soft);
+    }
+
+    .quiz-card.is-selected::after {
+      border-color: var(--accent);
+    }
+
+    .quiz-card strong {
+      font-size: 1rem;
+    }
+
+    .quiz-card span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .card-foot {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: var(--accent-strong);
+      background: #dff5ef;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .category-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .category-choice {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      min-height: 40px;
+      padding: 9px 11px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      font-weight: 700;
+    }
+
+    .category-choice input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .quiet {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .quiz-stage {
+      min-height: 68vh;
+      display: grid;
+      align-content: start;
+      gap: 14px;
+    }
+
+    .progress-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 10px;
+      overflow: hidden;
+      background: #e4e7ec;
+      border-radius: 999px;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--blue));
+      transition: width 180ms ease;
+    }
+
+    .question-card {
+      padding: 22px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .question-category {
+      margin: 0 0 10px;
+      color: var(--amber);
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .question-text {
+      margin: 0;
+      font-size: 1.45rem;
+      line-height: 1.28;
+      letter-spacing: 0;
+    }
+
+    .answer-area {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .option-button {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      text-align: left;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #aebbd0;
+      border-radius: var(--radius);
+      font-weight: 750;
+      box-shadow:
+        0 2px 0 rgba(24, 33, 47, 0.12),
+        0 8px 16px rgba(24, 33, 47, 0.06);
+      transition:
+        transform 140ms ease,
+        box-shadow 140ms ease,
+        background-color 140ms ease,
+        border-color 140ms ease;
+    }
+
+    .option-button:hover:not(:disabled),
+    .option-button.is-selected {
+      transform: translateY(-1px);
+      border-color: var(--blue);
+      background: #eff6ff;
+      box-shadow:
+        0 3px 0 rgba(37, 99, 235, 0.20),
+        0 12px 24px rgba(37, 99, 235, 0.12);
+    }
+
+    .option-button.is-correct {
+      color: #14532d;
+      background: var(--green-bg);
+      border-color: var(--green);
+    }
+
+    .option-button.is-wrong {
+      color: #7f1d1d;
+      background: var(--red-bg);
+      border-color: var(--red);
+    }
+
+    .text-answer,
+    .field input,
+    .field textarea,
+    .file-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      padding: 12px;
+      outline: none;
+    }
+
+    .text-answer {
+      min-height: 52px;
+      font-size: 1rem;
+    }
+
+    .text-answer:focus,
+    .field input:focus,
+    .field textarea:focus,
+    .file-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+    }
+
+    .feedback {
+      display: none;
+      padding: 14px;
+      border-radius: var(--radius);
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .feedback.is-visible {
+      display: block;
+    }
+
+    .feedback.is-correct {
+      color: #14532d;
+      background: var(--green-bg);
+      border: 1px solid #86efac;
+    }
+
+    .feedback.is-wrong {
+      color: #7f1d1d;
+      background: var(--red-bg);
+      border: 1px solid #fecaca;
+    }
+
+    .result-card {
+      display: grid;
+      gap: 18px;
+      place-items: center;
+      text-align: center;
+      padding: 30px 18px;
+    }
+
+    .score-ring {
+      display: grid;
+      width: 156px;
+      height: 156px;
+      place-items: center;
+      border: 12px solid #dff5ef;
+      border-top-color: var(--accent);
+      border-right-color: var(--blue);
+      border-radius: 50%;
+    }
+
+    .score-ring strong {
+      font-size: 2rem;
+    }
+
+    .result-card h2 {
+      margin: 0;
+      font-size: 1.55rem;
+    }
+
+    .result-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      color: var(--ink);
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .field textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .status {
+      min-height: 24px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .status.is-good {
+      color: var(--green);
+    }
+
+    .status.is-bad {
+      color: var(--red);
+    }
+
+    .empty-state {
+      padding: 16px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+    }
+
+    .delete-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .delete-choice {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid #aebbd0;
+      border-radius: var(--radius);
+    }
+
+    .delete-choice input {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--red);
+    }
+
+    .delete-choice strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .delete-choice span {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        display: grid;
+      }
+
+      .tabs {
+        width: 100%;
+      }
+
+      .tab-button {
+        flex: 1 0 auto;
+      }
+
+      .quiz-grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel,
+      .question-card {
+        padding: 16px;
+      }
+
+      .question-text {
+        font-size: 1.25rem;
+      }
+
+      .primary-button,
+      .ghost-button,
+      .danger-button {
+        width: 100%;
+      }
+
+    }
+  </style>
+</head>
+<body>
+  <main class="app" aria-live="polite">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">Q</div>
+        <div>
+          <h1>Lindmans bilquiz</h1>
+          <p>Frågor, kategorier och resultat i en fil.</p>
+        </div>
+      </div>
+
+      <nav class="tabs" aria-label="Vyer">
+        <button class="tab-button is-active" type="button" data-view-target="startView">Bibliotek</button>
+        <button class="tab-button" type="button" data-view-target="dataView">Import/export</button>
+      </nav>
+    </header>
+
+    <section id="startView" class="view is-active">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Välj quiz</h2>
+            <p id="librarySummary">Laddar quiz...</p>
+          </div>
+        </div>
+        <div id="quizList" class="quiz-grid"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Välj kategorier</h2>
+            <p id="categorySummary">Markera minst en kategori.</p>
+          </div>
+        </div>
+        <div id="categoryList" class="category-list"></div>
+        <div class="actions">
+          <button id="startQuizButton" class="primary-button" type="button">Starta frågor</button>
+          <span id="startStatus" class="quiet"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="quizView" class="view">
+      <div class="quiz-stage">
+        <div class="progress-row">
+          <div class="progress-meta">
+            <span id="progressText">Fråga 1 / 1</span>
+            <span id="scoreText">0 rätt</span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+        </div>
+
+        <article class="question-card">
+          <p id="questionCategory" class="question-category"></p>
+          <h2 id="questionText" class="question-text"></h2>
+          <div id="answerArea" class="answer-area"></div>
+        </article>
+
+        <div id="feedback" class="feedback"></div>
+
+        <div class="actions">
+          <button id="submitAnswerButton" class="primary-button" type="button">Svara</button>
+          <button id="nextQuestionButton" class="ghost-button" type="button" hidden>Nästa fråga</button>
+          <button id="quitQuizButton" class="ghost-button" type="button">Avsluta</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultView" class="view">
+      <div class="panel result-card">
+        <div class="score-ring" aria-label="Resultat">
+          <strong id="percentResult">0%</strong>
+        </div>
+        <div>
+          <h2 id="resultHeading">Resultat</h2>
+          <p id="resultDetails"></p>
+        </div>
+        <button id="restartButton" class="primary-button" type="button">Börja om</button>
+      </div>
+    </section>
+
+    <section id="dataView" class="view">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Import/export</h2>
+            <p>JSON-exporten kan importeras i samma HTML-app på andra enheter.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="exportButton" class="primary-button" type="button">Exportera quiz</button>
+          <label class="ghost-button" for="importFileInput">Importera quiz</label>
+          <input id="importFileInput" class="sr-only" type="file" accept="application/json,.json,.csv,text/csv,.txt" multiple>
+          <button id="openDeletePanelButton" class="danger-button" type="button">Ta bort quiz</button>
+        </div>
+        <p id="dataStatus" class="status"></p>
+      </div>
+
+      <div id="deletePanel" class="panel" hidden>
+        <div class="panel-header">
+          <div>
+            <h3>Välj quiz att ta bort</h3>
+            <p>Markerade quiz försvinner från biblioteket på den här enheten.</p>
+          </div>
+        </div>
+        <div id="deleteQuizList" class="delete-list"></div>
+        <div class="actions">
+          <button id="confirmDeleteButton" class="danger-button" type="button">Ta bort markerade</button>
+          <button id="cancelDeleteButton" class="ghost-button" type="button">Avbryt</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Frågebanken ligger direkt i JavaScript och kan byggas ut med fler quiz.
+    const DEFAULT_QUIZZES = [
+      {
+        id: "allmanbildning",
+        title: "Allmänbildning",
+        description: "Blandade frågor för snabb uppvärmning.",
+        source: "Inbyggt",
+        questions: [
+          {
+            category: "Geografi",
+            text: "Vilken är Sveriges huvudstad?",
+            answer: "Stockholm",
+            options: ["Göteborg", "Malmö", "Stockholm", "Uppsala"]
+          },
+          {
+            category: "Historia",
+            text: "Vilket år föll Berlinmuren?",
+            answer: "1989",
+            options: ["1979", "1989", "1999", "2001"]
+          },
+          {
+            category: "Natur",
+            text: "Vad heter processen där växter omvandlar ljus till energi?",
+            answer: "Fotosyntes"
+          },
+          {
+            category: "Språk",
+            text: "Vilket ord är ett verb: snabbt, springer eller blå?",
+            answer: "springer",
+            options: ["snabbt", "springer", "blå"]
+          },
+          {
+            category: "Geografi",
+            text: "Vilken kontinent ligger Kenya i?",
+            answer: "Afrika"
+          }
+        ]
+      },
+      {
+        id: "webbutveckling",
+        title: "Webbutveckling",
+        description: "HTML, CSS och JavaScript på grundnivå.",
+        source: "Inbyggt",
+        questions: [
+          {
+            category: "HTML",
+            text: "Vilken HTML-tagg används oftast för en huvudrubrik?",
+            answer: "h1",
+            options: ["section", "h1", "strong", "header"]
+          },
+          {
+            category: "CSS",
+            text: "Vilken CSS-egenskap styr textfärg?",
+            answer: "color",
+            options: ["font-style", "background", "color", "display"]
+          },
+          {
+            category: "JavaScript",
+            text: "Vilket nyckelord deklarerar en konstant variabel i JavaScript?",
+            answer: "const"
+          },
+          {
+            category: "CSS",
+            text: "Vilket värde på display gör det enkelt att skapa rad- och kolumnlayout?",
+            answer: "grid",
+            options: ["grid", "block", "static", "visible"]
+          },
+          {
+            category: "HTML",
+            text: "Vilket attribut används för alternativtext på en bild?",
+            answer: "alt"
+          }
+        ]
+      }
+    ];
+
+    const STORAGE_KEY = "quizstudio.customQuizzes.v1";
+    const DELETED_QUIZ_IDS_KEY = "quizstudio.deletedQuizIds.v1";
+
+    const elements = {
+      tabs: document.querySelectorAll("[data-view-target]"),
+      views: document.querySelectorAll(".view"),
+      quizList: document.getElementById("quizList"),
+      librarySummary: document.getElementById("librarySummary"),
+      categoryList: document.getElementById("categoryList"),
+      categorySummary: document.getElementById("categorySummary"),
+      startQuizButton: document.getElementById("startQuizButton"),
+      startStatus: document.getElementById("startStatus"),
+      progressText: document.getElementById("progressText"),
+      scoreText: document.getElementById("scoreText"),
+      progressFill: document.getElementById("progressFill"),
+      questionCategory: document.getElementById("questionCategory"),
+      questionText: document.getElementById("questionText"),
+      answerArea: document.getElementById("answerArea"),
+      feedback: document.getElementById("feedback"),
+      submitAnswerButton: document.getElementById("submitAnswerButton"),
+      nextQuestionButton: document.getElementById("nextQuestionButton"),
+      quitQuizButton: document.getElementById("quitQuizButton"),
+      percentResult: document.getElementById("percentResult"),
+      resultHeading: document.getElementById("resultHeading"),
+      resultDetails: document.getElementById("resultDetails"),
+      restartButton: document.getElementById("restartButton"),
+      exportButton: document.getElementById("exportButton"),
+      importFileInput: document.getElementById("importFileInput"),
+      openDeletePanelButton: document.getElementById("openDeletePanelButton"),
+      deletePanel: document.getElementById("deletePanel"),
+      deleteQuizList: document.getElementById("deleteQuizList"),
+      confirmDeleteButton: document.getElementById("confirmDeleteButton"),
+      cancelDeleteButton: document.getElementById("cancelDeleteButton"),
+      dataStatus: document.getElementById("dataStatus")
+    };
+
+    const state = {
+      customQuizzes: loadCustomQuizzes(),
+      deletedQuizIds: loadDeletedQuizIds(),
+      selectedQuizId: null,
+      selectedCategories: new Set(),
+      activeQuestions: [],
+      currentIndex: 0,
+      score: 0,
+      selectedOption: "",
+      answered: false
+    };
+
+    function getAllQuizzes() {
+      return [...DEFAULT_QUIZZES, ...state.customQuizzes]
+        .filter((quiz) => !state.deletedQuizIds.has(quiz.id));
+    }
+
+    function loadCustomQuizzes() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(saved) ? saved.filter(isValidQuiz) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCustomQuizzes() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.customQuizzes));
+    }
+
+    function loadDeletedQuizIds() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(DELETED_QUIZ_IDS_KEY) || "[]");
+        return new Set(Array.isArray(saved) ? saved.map(String) : []);
+      } catch {
+        return new Set();
+      }
+    }
+
+    function saveDeletedQuizIds() {
+      localStorage.setItem(DELETED_QUIZ_IDS_KEY, JSON.stringify([...state.deletedQuizIds]));
+    }
+
+    function isValidQuiz(quiz) {
+      return Boolean(
+        quiz &&
+        typeof quiz.title === "string" &&
+        Array.isArray(quiz.questions) &&
+        quiz.questions.every((question) =>
+          question &&
+          typeof question.category === "string" &&
+          typeof getImportedQuestionText(question) === "string" &&
+          typeof getImportedAnswer(question) === "string"
+        )
+      );
+    }
+
+    function switchView(viewId) {
+      elements.views.forEach((view) => view.classList.toggle("is-active", view.id === viewId));
+      elements.tabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.viewTarget === viewId));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function getQuizById(id) {
+      return getAllQuizzes().find((quiz) => quiz.id === id) || getAllQuizzes()[0];
+    }
+
+    function syncSelectedQuiz() {
+      const quizzes = getAllQuizzes();
+      const currentQuiz = quizzes.find((quiz) => quiz.id === state.selectedQuizId);
+      if (currentQuiz) return currentQuiz;
+
+      const fallbackQuiz = quizzes[0] || null;
+      state.selectedQuizId = fallbackQuiz ? fallbackQuiz.id : null;
+      state.selectedCategories = fallbackQuiz ? new Set(getCategories(fallbackQuiz)) : new Set();
+      return fallbackQuiz;
+    }
+
+    function getCategories(quiz) {
+      return [...new Set(quiz.questions.map((question) => question.category.trim()).filter(Boolean))].sort();
+    }
+
+    function renderQuizList() {
+      const quizzes = getAllQuizzes();
+      syncSelectedQuiz();
+
+      elements.librarySummary.textContent = quizzes.length === 1
+        ? "1 quiz tillgängligt"
+        : `${quizzes.length} quiz tillgängliga`;
+      elements.quizList.innerHTML = "";
+
+      if (quizzes.length === 0) {
+        elements.quizList.innerHTML = `<div class="empty-state">Inga quiz finns i biblioteket. Importera ett quiz för att börja.</div>`;
+        renderDeleteQuizList();
+        return;
+      }
+
+      quizzes.forEach((quiz) => {
+        const categories = getCategories(quiz);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `quiz-card${quiz.id === state.selectedQuizId ? " is-selected" : ""}`;
+        button.innerHTML = `
+          <strong>${escapeHtml(quiz.title)}</strong>
+          <span>${escapeHtml(quiz.description || "Eget quiz")}</span>
+          <span class="card-foot">
+            <span class="pill">${escapeHtml(quiz.source || "Eget")}</span>
+            ${quiz.questions.length} frågor · ${categories.length} kategorier
+          </span>
+        `;
+        button.addEventListener("click", () => {
+          state.selectedQuizId = quiz.id;
+          state.selectedCategories = new Set(categories);
+          renderQuizList();
+          renderCategories();
+        });
+        elements.quizList.appendChild(button);
+      });
+
+      renderDeleteQuizList();
+    }
+
+    function renderCategories() {
+      const quiz = getQuizById(state.selectedQuizId);
+      if (!quiz) {
+        elements.categoryList.innerHTML = `<div class="empty-state">Inga quiz hittades.</div>`;
+        elements.categorySummary.textContent = "Importera ett quiz först.";
+        elements.startStatus.textContent = "Inga frågor valda";
+        elements.startQuizButton.disabled = true;
+        return;
+      }
+
+      const categories = getCategories(quiz);
+      elements.categoryList.innerHTML = "";
+
+      categories.forEach((category) => {
+        const label = document.createElement("label");
+        label.className = "category-choice";
+        label.innerHTML = `
+          <input type="checkbox" value="${escapeAttribute(category)}" ${state.selectedCategories.has(category) ? "checked" : ""}>
+          <span>${escapeHtml(category)}</span>
+        `;
+        label.querySelector("input").addEventListener("change", (event) => {
+          if (event.target.checked) {
+            state.selectedCategories.add(category);
+          } else {
+            state.selectedCategories.delete(category);
+          }
+          updateStartState();
+        });
+        elements.categoryList.appendChild(label);
+      });
+
+      updateStartState();
+    }
+
+    function updateStartState() {
+      const quiz = getQuizById(state.selectedQuizId);
+      const selectedCount = state.selectedCategories.size;
+      const questionCount = quiz
+        ? quiz.questions.filter((question) => state.selectedCategories.has(question.category)).length
+        : 0;
+
+      elements.categorySummary.textContent = selectedCount === 1
+        ? "1 kategori markerad"
+        : `${selectedCount} kategorier markerade`;
+      elements.startStatus.textContent = questionCount > 0 ? `${questionCount} frågor valda` : "Välj minst en kategori";
+      elements.startQuizButton.disabled = questionCount === 0;
+    }
+
+    function startQuiz() {
+      const quiz = getQuizById(state.selectedQuizId);
+      if (!quiz) return;
+
+      state.activeQuestions = quiz.questions.filter((question) => state.selectedCategories.has(question.category));
+      state.currentIndex = 0;
+      state.score = 0;
+      state.selectedOption = "";
+      state.answered = false;
+
+      renderQuestion();
+      switchView("quizView");
+    }
+
+    function renderQuestion() {
+      const question = state.activeQuestions[state.currentIndex];
+      const progress = ((state.currentIndex) / state.activeQuestions.length) * 100;
+      state.selectedOption = "";
+      state.answered = false;
+
+      elements.progressText.textContent = `Fråga ${state.currentIndex + 1} / ${state.activeQuestions.length}`;
+      elements.scoreText.textContent = `${state.score} rätt`;
+      elements.progressFill.style.width = `${progress}%`;
+      elements.questionCategory.textContent = question.category;
+      elements.questionText.textContent = question.text;
+      elements.feedback.className = "feedback";
+      elements.feedback.textContent = "";
+      elements.submitAnswerButton.hidden = false;
+      elements.nextQuestionButton.hidden = true;
+      elements.nextQuestionButton.textContent = state.currentIndex === state.activeQuestions.length - 1
+        ? "Visa resultat"
+        : "Nästa fråga";
+
+      renderAnswerControl(question);
+    }
+
+    function renderAnswerControl(question) {
+      elements.answerArea.innerHTML = "";
+
+      if (Array.isArray(question.options) && question.options.length > 0) {
+        question.options.forEach((option) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "option-button";
+          button.textContent = option;
+          button.addEventListener("click", () => {
+            if (state.answered) return;
+            state.selectedOption = option;
+            document.querySelectorAll(".option-button").forEach((item) => item.classList.remove("is-selected"));
+            button.classList.add("is-selected");
+          });
+          elements.answerArea.appendChild(button);
+        });
+        return;
+      }
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "text-answer";
+      input.placeholder = "Skriv ditt svar";
+      input.autocomplete = "off";
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") checkAnswer();
+      });
+      elements.answerArea.appendChild(input);
+      input.focus();
+    }
+
+    function checkAnswer() {
+      const question = state.activeQuestions[state.currentIndex];
+      const hasOptions = Array.isArray(question.options) && question.options.length > 0;
+      const userAnswer = hasOptions
+        ? state.selectedOption
+        : elements.answerArea.querySelector("input")?.value || "";
+
+      if (!normalizeAnswer(userAnswer)) {
+        showFeedback(false, "Skriv eller välj ett svar först.", false);
+        return;
+      }
+
+      const acceptedAnswers = [question.answer, ...(question.acceptedAnswers || [])].map(normalizeAnswer);
+      const isCorrect = acceptedAnswers.includes(normalizeAnswer(userAnswer));
+
+      state.answered = true;
+      if (isCorrect) state.score += 1;
+
+      showFeedback(isCorrect, isCorrect ? "Rätt!" : `Fel! Rätt svar: ${question.answer}`, true);
+      markOptions(question, userAnswer);
+      elements.submitAnswerButton.hidden = true;
+      elements.nextQuestionButton.hidden = false;
+      elements.scoreText.textContent = `${state.score} rätt`;
+      elements.progressFill.style.width = `${((state.currentIndex + 1) / state.activeQuestions.length) * 100}%`;
+    }
+
+    function showFeedback(isCorrect, message, finalState) {
+      elements.feedback.textContent = message;
+      elements.feedback.className = `feedback is-visible ${isCorrect ? "is-correct" : "is-wrong"}`;
+      if (!finalState) {
+        elements.feedback.className = "feedback is-visible is-wrong";
+      }
+    }
+
+    function markOptions(question, userAnswer) {
+      document.querySelectorAll(".option-button").forEach((button) => {
+        button.disabled = true;
+        if (normalizeAnswer(button.textContent) === normalizeAnswer(question.answer)) {
+          button.classList.add("is-correct");
+        } else if (normalizeAnswer(button.textContent) === normalizeAnswer(userAnswer)) {
+          button.classList.add("is-wrong");
+        }
+      });
+    }
+
+    function nextQuestion() {
+      if (state.currentIndex < state.activeQuestions.length - 1) {
+        state.currentIndex += 1;
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      const total = state.activeQuestions.length;
+      const percent = total ? Math.round((state.score / total) * 100) : 0;
+      elements.percentResult.textContent = `${percent}%`;
+      elements.resultHeading.textContent = `${state.score} av ${total} rätt`;
+      elements.resultDetails.textContent = `Du fick ${percent} procent rätt.`;
+      switchView("resultView");
+    }
+
+    // Fritextsvar rättas case-insensitive och med extra mellanslag borttagna.
+    function normalizeAnswer(value) {
+      return String(value || "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLocaleLowerCase("sv-SE");
+    }
+
+    function exportQuizzes() {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        quizzes: getAllQuizzes().map(({ id, title, description, source, questions }) => ({
+          id,
+          title,
+          description,
+          source: source === "Inbyggt" ? "Importerad" : source,
+          questions
+        }))
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "quizstudio-export.json";
+      link.click();
+      URL.revokeObjectURL(url);
+      setStatus(elements.dataStatus, "Quiz exporterades.", true);
+    }
+
+    async function importQuizFiles(fileList) {
+      const files = Array.from(fileList || []);
+      if (files.length === 0) return;
+
+      const builtInIds = new Set(DEFAULT_QUIZZES.map((quiz) => quiz.id));
+      const customById = new Map(state.customQuizzes.map((quiz) => [quiz.id, quiz]));
+      const failedFiles = [];
+      let firstSavedId = "";
+      let importedCount = 0;
+
+      try {
+        for (const file of files) {
+          try {
+            const text = await file.text();
+            const imported = parseImportedQuizzes(text, file.name);
+            const cleaned = normalizeImportedQuizzes(imported);
+
+            if (cleaned.length === 0) throw new Error("Inga giltiga quiz hittades.");
+
+            cleaned.forEach((quiz) => {
+              const id = builtInIds.has(quiz.id) ? `${quiz.id}-importerad` : quiz.id;
+              customById.set(id, { ...quiz, id });
+              state.deletedQuizIds.delete(id);
+              if (!firstSavedId) firstSavedId = id;
+              importedCount += 1;
+            });
+          } catch (error) {
+            failedFiles.push(`${file.name}: ${error.message}`);
+          }
+        }
+
+        if (importedCount === 0) {
+          throw new Error(failedFiles.join(" · ") || "Inga giltiga quiz hittades.");
+        }
+
+        state.customQuizzes = [...customById.values()];
+        saveCustomQuizzes();
+        saveDeletedQuizIds();
+        state.selectedQuizId = firstSavedId;
+        state.selectedCategories = new Set(getCategories(getQuizById(firstSavedId)));
+        renderQuizList();
+        renderCategories();
+        setStatus(
+          elements.dataStatus,
+          failedFiles.length > 0
+            ? `${importedCount} quiz importerades. ${failedFiles.length} fil(er) misslyckades: ${failedFiles.join(" · ")}`
+            : `${importedCount} quiz importerades och lades till i biblioteket.`,
+          failedFiles.length === 0
+        );
+        elements.startStatus.textContent = importedCount === 1
+          ? "1 importerat quiz är valt"
+          : `${importedCount} importerade quiz lades till`;
+        switchView("startView");
+      } catch (error) {
+        setStatus(elements.dataStatus, `Importen misslyckades: ${error.message}`, false);
+      } finally {
+        elements.importFileInput.value = "";
+      }
+    }
+
+    function normalizeImportedQuizzes(imported) {
+      return imported
+        .filter(isValidQuiz)
+        .map((quiz) => ({
+          id: quiz.id ? createId(quiz.id) : createId(quiz.title),
+          title: quiz.title.trim(),
+          description: quiz.description || "Importerad",
+          source: "Importerad",
+          questions: quiz.questions.map((question) => ({
+            category: question.category.trim(),
+            text: getImportedQuestionText(question).trim(),
+            answer: getImportedAnswer(question).trim(),
+            ...(Array.isArray(question.options) && question.options.length > 0
+              ? { options: normalizeOptions(question.options, getImportedAnswer(question)) }
+              : {})
+          }))
+        }));
+    }
+
+    function parseImportedQuizzes(text, fileName) {
+      const trimmed = text.trim();
+      const isJson = fileName.toLowerCase().endsWith(".json") || trimmed.startsWith("{") || trimmed.startsWith("[");
+      if (isJson) {
+        const parsed = JSON.parse(trimmed);
+        const imported = Array.isArray(parsed)
+          ? parsed
+          : Array.isArray(parsed.quizzes)
+          ? parsed.quizzes
+          : isValidQuiz(parsed)
+          ? [parsed]
+          : null;
+        if (!Array.isArray(imported)) throw new Error("JSON saknar quizlista.");
+        return imported;
+      }
+
+      return parseCsvQuizzes(text);
+    }
+
+    function getImportedQuestionText(question) {
+      return question.text || question.question || question.fråga || question.fraga;
+    }
+
+    function getImportedAnswer(question) {
+      return question.answer || question.correctAnswer || question.korrektSvar || question["korrekt svar"];
+    }
+
+    function parseCsvQuizzes(text) {
+      const rows = parseDelimitedRows(text).filter((row) => row.some((cell) => cell.trim()));
+      if (rows.length < 2) throw new Error("CSV saknar rader.");
+
+      const header = rows[0].map(normalizeHeader);
+      const index = Object.fromEntries(header.map((name, position) => [name, position]));
+      ["quizid", "quiznamn", "kategori", "fraga", "korrekt svar"].forEach((key) => {
+        if (!(key in index)) throw new Error(`CSV saknar kolumn: ${key}`);
+      });
+
+      const grouped = new Map();
+      rows.slice(1).forEach((row) => {
+        const active = getCsvValue(row, index, "aktiv") || "ja";
+        if (normalizeAnswer(active) === "nej") return;
+
+        const id = getCsvValue(row, index, "quizid");
+        const title = getCsvValue(row, index, "quiznamn");
+        const category = getCsvValue(row, index, "kategori");
+        const questionText = getCsvValue(row, index, "fraga");
+        const answer = getCsvValue(row, index, "korrekt svar");
+        const optionText = getCsvValue(row, index, "svarsalternativ");
+        if (!id || !title || !category || !questionText || !answer) return;
+
+        if (!grouped.has(id)) {
+          grouped.set(id, {
+            id,
+            title,
+            description: "Importerad från CSV",
+            source: "Importerad",
+            questions: []
+          });
+        }
+
+        const options = optionText
+          .split("|")
+          .map((option) => option.trim())
+          .filter(Boolean);
+
+        grouped.get(id).questions.push({
+          category,
+          text: questionText,
+          answer,
+          ...(options.length > 0 ? { options: normalizeOptions(options, answer) } : {})
+        });
+      });
+
+      return [...grouped.values()];
+    }
+
+    function parseDelimitedRows(text) {
+      const delimiter = detectDelimiter(text);
+      const rows = [];
+      let row = [];
+      let cell = "";
+      let inQuotes = false;
+
+      for (let index = 0; index < text.length; index += 1) {
+        const char = text[index];
+        const next = text[index + 1];
+
+        if (char === "\"") {
+          if (inQuotes && next === "\"") {
+            cell += "\"";
+            index += 1;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === delimiter && !inQuotes) {
+          row.push(cell);
+          cell = "";
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+          if (char === "\r" && next === "\n") index += 1;
+          row.push(cell);
+          rows.push(row);
+          row = [];
+          cell = "";
+        } else {
+          cell += char;
+        }
+      }
+
+      row.push(cell);
+      rows.push(row);
+      return rows;
+    }
+
+    function detectDelimiter(text) {
+      const firstLine = text.split(/\r?\n/, 1)[0] || "";
+      const candidates = [",", ";", "\t"];
+      return candidates
+        .map((delimiter) => ({
+          delimiter,
+          count: firstLine.split(delimiter).length - 1
+        }))
+        .sort((a, b) => b.count - a.count)[0].delimiter;
+    }
+
+    function normalizeHeader(value) {
+      return String(value || "")
+        .replace(/^\uFEFF/, "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLocaleLowerCase("sv-SE")
+        .replace(/\s+/g, " ");
+    }
+
+    function getCsvValue(row, index, key) {
+      const position = index[key];
+      return typeof position === "number" ? String(row[position] || "").trim() : "";
+    }
+
+    function normalizeOptions(options, answer) {
+      const cleaned = options.map(String).map((option) => option.trim()).filter(Boolean);
+      if (!cleaned.some((option) => normalizeAnswer(option) === normalizeAnswer(answer))) {
+        cleaned.push(answer);
+      }
+      return cleaned;
+    }
+
+    function toggleDeletePanel(showPanel = elements.deletePanel.hidden) {
+      elements.deletePanel.hidden = !showPanel;
+      if (showPanel) renderDeleteQuizList();
+    }
+
+    function renderDeleteQuizList() {
+      if (!elements.deleteQuizList) return;
+
+      const quizzes = getAllQuizzes();
+      elements.deleteQuizList.innerHTML = "";
+      elements.confirmDeleteButton.disabled = quizzes.length === 0;
+
+      if (quizzes.length === 0) {
+        elements.deleteQuizList.innerHTML = `<div class="empty-state">Det finns inga quiz att ta bort.</div>`;
+        return;
+      }
+
+      quizzes.forEach((quiz) => {
+        const categories = getCategories(quiz);
+        const label = document.createElement("label");
+        label.className = "delete-choice";
+        label.innerHTML = `
+          <input type="checkbox" value="${escapeAttribute(quiz.id)}">
+          <span>
+            <strong>${escapeHtml(quiz.title)}</strong>
+            <span>${escapeHtml(quiz.source || "Eget")} · ${quiz.questions.length} frågor · ${categories.length} kategorier</span>
+          </span>
+        `;
+        label.querySelector("input").addEventListener("change", updateDeleteButtonState);
+        elements.deleteQuizList.appendChild(label);
+      });
+
+      updateDeleteButtonState();
+    }
+
+    function updateDeleteButtonState() {
+      const selectedCount = elements.deleteQuizList.querySelectorAll("input:checked").length;
+      elements.confirmDeleteButton.disabled = selectedCount === 0;
+      elements.confirmDeleteButton.textContent = selectedCount === 0
+        ? "Ta bort markerade"
+        : selectedCount === 1
+        ? "Ta bort 1 quiz"
+        : `Ta bort ${selectedCount} quiz`;
+    }
+
+    function deleteSelectedQuizzes() {
+      const selectedIds = [...elements.deleteQuizList.querySelectorAll("input:checked")]
+        .map((input) => input.value);
+
+      if (selectedIds.length === 0) {
+        setStatus(elements.dataStatus, "Välj minst ett quiz att ta bort.", false);
+        return;
+      }
+
+      const selectedIdSet = new Set(selectedIds);
+      const builtInIds = new Set(DEFAULT_QUIZZES.map((quiz) => quiz.id));
+      const deletedTitles = getAllQuizzes()
+        .filter((quiz) => selectedIdSet.has(quiz.id))
+        .map((quiz) => quiz.title);
+
+      state.customQuizzes = state.customQuizzes.filter((quiz) => !selectedIdSet.has(quiz.id));
+      selectedIds.forEach((id) => {
+        if (builtInIds.has(id)) state.deletedQuizIds.add(id);
+      });
+
+      saveCustomQuizzes();
+      saveDeletedQuizIds();
+      syncSelectedQuiz();
+      renderQuizList();
+      renderCategories();
+      renderDeleteQuizList();
+      setStatus(elements.dataStatus, `${deletedTitles.length} quiz togs bort: ${deletedTitles.join(", ")}`, true);
+    }
+
+    function setStatus(element, message, isGood) {
+      element.textContent = message;
+      element.className = `status ${isGood ? "is-good" : "is-bad"}`;
+    }
+
+    function createId(value) {
+      const base = String(value)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 42);
+      return base || `quiz-${Date.now()}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeAttribute(value) {
+      return escapeHtml(value).replace(/`/g, "&#096;");
+    }
+
+    elements.tabs.forEach((button) => {
+      button.addEventListener("click", () => switchView(button.dataset.viewTarget));
+    });
+
+    elements.startQuizButton.addEventListener("click", startQuiz);
+    elements.submitAnswerButton.addEventListener("click", checkAnswer);
+    elements.nextQuestionButton.addEventListener("click", nextQuestion);
+    elements.quitQuizButton.addEventListener("click", () => switchView("startView"));
+    elements.restartButton.addEventListener("click", () => switchView("startView"));
+    elements.exportButton.addEventListener("click", exportQuizzes);
+    elements.importFileInput.addEventListener("change", (event) => importQuizFiles(event.target.files));
+    elements.openDeletePanelButton.addEventListener("click", () => toggleDeletePanel());
+    elements.confirmDeleteButton.addEventListener("click", deleteSelectedQuizzes);
+    elements.cancelDeleteButton.addEventListener("click", () => toggleDeletePanel(false));
+
+    renderQuizList();
+    renderCategories();
+  </script>
+</body>
+</html>
