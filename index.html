@@ -1,0 +1,3092 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lindmans bilquiz</title>
+  <style>
+    :root {
+      --bg: #f6f7f2;
+      --surface: #ffffff;
+      --surface-soft: #eef5f3;
+      --ink: #18212f;
+      --muted: #667085;
+      --line: #d8dfda;
+      --accent: #0f766e;
+      --accent-strong: #0b5c56;
+      --blue: #2563eb;
+      --amber: #b45309;
+      --green: #15803d;
+      --green-bg: #dcfce7;
+      --red: #b91c1c;
+      --red-bg: #fee2e2;
+      --shadow: 0 18px 45px rgba(24, 33, 47, 0.12);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 34rem),
+        linear-gradient(135deg, #fbfcf8 0%, var(--bg) 48%, #eef2ff 100%);
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    label.ghost-button {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .app {
+      width: min(100%, 980px);
+      margin: 0 auto;
+      padding: 18px 14px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: var(--radius);
+      color: #fff;
+      background: var(--ink);
+      box-shadow: 0 10px 24px rgba(24, 33, 47, 0.18);
+      font-weight: 800;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .tab-button,
+    .ghost-button,
+    .primary-button,
+    .danger-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      user-select: none;
+      box-shadow:
+        0 2px 0 rgba(24, 33, 47, 0.16),
+        0 8px 18px rgba(24, 33, 47, 0.08);
+      transition:
+        transform 140ms ease,
+        box-shadow 140ms ease,
+        background-color 140ms ease,
+        border-color 140ms ease,
+        color 140ms ease;
+    }
+
+    .tab-button {
+      color: #24405f;
+      background: #ffffff;
+      border-color: #aebbd0;
+    }
+
+    .tab-button.is-active {
+      color: #fff;
+      background: var(--ink);
+      border-color: var(--ink);
+      box-shadow:
+        0 3px 0 #0b1220,
+        0 12px 24px rgba(24, 33, 47, 0.16);
+    }
+
+    .primary-button {
+      color: #fff;
+      background: var(--accent);
+      border-color: #0a5c56;
+      box-shadow:
+        0 3px 0 #064e49,
+        0 12px 24px rgba(15, 118, 110, 0.22);
+    }
+
+    .primary-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      background: var(--accent-strong);
+      border-color: var(--accent-strong);
+    }
+
+    .ghost-button {
+      color: #16324f;
+      background: #fff;
+      border-color: #aebbd0;
+    }
+
+    .tab-button:hover:not(.is-active),
+    .ghost-button:hover {
+      transform: translateY(-1px);
+      background: #f8fbff;
+      border-color: #7c8da6;
+      box-shadow:
+        0 3px 0 rgba(24, 33, 47, 0.18),
+        0 12px 22px rgba(24, 33, 47, 0.12);
+    }
+
+    .danger-button {
+      color: #fff;
+      background: var(--red);
+      border-color: #8f1520;
+      box-shadow:
+        0 3px 0 #7f1d1d,
+        0 12px 24px rgba(185, 28, 28, 0.18);
+    }
+
+    .danger-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      background: #991b1b;
+    }
+
+    .tab-button:active,
+    .ghost-button:active,
+    .primary-button:active:not(:disabled),
+    .danger-button:active:not(:disabled) {
+      transform: translateY(1px);
+      box-shadow:
+        0 1px 0 rgba(24, 33, 47, 0.18),
+        0 5px 12px rgba(24, 33, 47, 0.10);
+    }
+
+    .tab-button:focus-visible,
+    .ghost-button:focus-visible,
+    .primary-button:focus-visible,
+    .danger-button:focus-visible,
+    .quiz-card:focus-visible,
+    .option-button:focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.35);
+      outline-offset: 2px;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.is-active {
+      display: block;
+    }
+
+    .panel {
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(216, 223, 218, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel + .panel {
+      margin-top: 14px;
+    }
+
+    .panel-header {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .panel-header h2,
+    .panel-header h3 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    .panel-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .quiz-card {
+      display: grid;
+      gap: 10px;
+      position: relative;
+      min-height: 126px;
+      padding: 14px;
+      padding-right: 38px;
+      text-align: left;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #aebbd0;
+      border-radius: var(--radius);
+      box-shadow:
+        0 2px 0 rgba(24, 33, 47, 0.12),
+        0 8px 18px rgba(24, 33, 47, 0.07);
+      transition:
+        transform 140ms ease,
+        box-shadow 140ms ease,
+        background-color 140ms ease,
+        border-color 140ms ease;
+    }
+
+    .quiz-card::after {
+      content: "";
+      position: absolute;
+      top: 18px;
+      right: 16px;
+      width: 9px;
+      height: 9px;
+      border-top: 2px solid #64748b;
+      border-right: 2px solid #64748b;
+      transform: rotate(45deg);
+    }
+
+    .quiz-card:hover,
+    .quiz-card.is-selected {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      box-shadow:
+        0 3px 0 rgba(15, 118, 110, 0.25),
+        0 14px 28px rgba(15, 118, 110, 0.14);
+    }
+
+    .quiz-card.is-selected {
+      background: var(--surface-soft);
+    }
+
+    .quiz-card.is-selected::after {
+      border-color: var(--accent);
+    }
+
+    .quiz-card strong {
+      font-size: 1rem;
+    }
+
+    .quiz-card span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .card-foot {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: var(--accent-strong);
+      background: #dff5ef;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .category-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .category-choice {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      min-height: 40px;
+      padding: 9px 11px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      font-weight: 700;
+    }
+
+    .category-choice input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .quiet {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .quiz-stage {
+      min-height: 68vh;
+      display: grid;
+      align-content: start;
+      gap: 14px;
+    }
+
+    .progress-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 10px;
+      overflow: hidden;
+      background: #e4e7ec;
+      border-radius: 999px;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--blue));
+      transition: width 180ms ease;
+    }
+
+    .question-card {
+      padding: 22px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .question-category {
+      margin: 0 0 10px;
+      color: var(--amber);
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .question-text {
+      margin: 0;
+      font-size: 1.45rem;
+      line-height: 1.28;
+      letter-spacing: 0;
+    }
+
+    .answer-area {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .option-button {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      text-align: left;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #aebbd0;
+      border-radius: var(--radius);
+      font-weight: 750;
+      box-shadow:
+        0 2px 0 rgba(24, 33, 47, 0.12),
+        0 8px 16px rgba(24, 33, 47, 0.06);
+      transition:
+        transform 140ms ease,
+        box-shadow 140ms ease,
+        background-color 140ms ease,
+        border-color 140ms ease;
+    }
+
+    .option-button:hover:not(:disabled),
+    .option-button.is-selected {
+      transform: translateY(-1px);
+      border-color: var(--blue);
+      background: #eff6ff;
+      box-shadow:
+        0 3px 0 rgba(37, 99, 235, 0.20),
+        0 12px 24px rgba(37, 99, 235, 0.12);
+    }
+
+    .option-button.is-correct {
+      color: #14532d;
+      background: var(--green-bg);
+      border-color: var(--green);
+    }
+
+    .option-button.is-wrong {
+      color: #7f1d1d;
+      background: var(--red-bg);
+      border-color: var(--red);
+    }
+
+    .text-answer,
+    .field input,
+    .field textarea,
+    .file-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      padding: 12px;
+      outline: none;
+    }
+
+    .text-answer {
+      min-height: 52px;
+      font-size: 1rem;
+    }
+
+    .text-answer:focus,
+    .field input:focus,
+    .field textarea:focus,
+    .file-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+    }
+
+    .feedback {
+      display: none;
+      padding: 14px;
+      border-radius: var(--radius);
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .feedback.is-visible {
+      display: block;
+    }
+
+    .feedback.is-correct {
+      color: #14532d;
+      background: var(--green-bg);
+      border: 1px solid #86efac;
+    }
+
+    .feedback.is-wrong {
+      color: #7f1d1d;
+      background: var(--red-bg);
+      border: 1px solid #fecaca;
+    }
+
+    .result-card {
+      display: grid;
+      gap: 18px;
+      place-items: center;
+      text-align: center;
+      padding: 30px 18px;
+    }
+
+    .score-ring {
+      display: grid;
+      width: 156px;
+      height: 156px;
+      place-items: center;
+      border: 12px solid #dff5ef;
+      border-top-color: var(--accent);
+      border-right-color: var(--blue);
+      border-radius: 50%;
+    }
+
+    .score-ring strong {
+      font-size: 2rem;
+    }
+
+    .result-card h2 {
+      margin: 0;
+      font-size: 1.55rem;
+    }
+
+    .result-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      color: var(--ink);
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .field textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .status {
+      min-height: 24px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .status.is-good {
+      color: var(--green);
+    }
+
+    .status.is-bad {
+      color: var(--red);
+    }
+
+    .empty-state {
+      padding: 16px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+    }
+
+    .delete-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .delete-choice {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid #aebbd0;
+      border-radius: var(--radius);
+    }
+
+    .delete-choice input {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--red);
+    }
+
+    .delete-choice strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .delete-choice span {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        display: grid;
+      }
+
+      .tabs {
+        width: 100%;
+      }
+
+      .tab-button {
+        flex: 1 0 auto;
+      }
+
+      .quiz-grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel,
+      .question-card {
+        padding: 16px;
+      }
+
+      .question-text {
+        font-size: 1.25rem;
+      }
+
+      .primary-button,
+      .ghost-button,
+      .danger-button {
+        width: 100%;
+      }
+
+    }
+  </style>
+</head>
+<body>
+  <main class="app" aria-live="polite">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">Q</div>
+        <div>
+          <h1>Lindmans bilquiz</h1>
+          <p>Frågor, kategorier och resultat i en fil.</p>
+        </div>
+      </div>
+
+      <nav class="tabs" aria-label="Vyer">
+        <button class="tab-button is-active" type="button" data-view-target="startView">Bibliotek</button>
+        <button class="tab-button" type="button" data-view-target="dataView">Import/export</button>
+      </nav>
+    </header>
+
+    <section id="startView" class="view is-active">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Välj quiz</h2>
+            <p id="librarySummary">Laddar quiz...</p>
+          </div>
+        </div>
+        <div id="quizList" class="quiz-grid"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Välj kategorier</h2>
+            <p id="categorySummary">Markera minst en kategori.</p>
+          </div>
+        </div>
+        <div id="categoryList" class="category-list"></div>
+        <div class="actions">
+          <button id="startQuizButton" class="primary-button" type="button">Starta frågor</button>
+          <span id="startStatus" class="quiet"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="quizView" class="view">
+      <div class="quiz-stage">
+        <div class="progress-row">
+          <div class="progress-meta">
+            <span id="progressText">Fråga 1 / 1</span>
+            <span id="scoreText">0 rätt</span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+        </div>
+
+        <article class="question-card">
+          <p id="questionCategory" class="question-category"></p>
+          <h2 id="questionText" class="question-text"></h2>
+          <div id="answerArea" class="answer-area"></div>
+        </article>
+
+        <div id="feedback" class="feedback"></div>
+
+        <div class="actions">
+          <button id="submitAnswerButton" class="primary-button" type="button">Svara</button>
+          <button id="nextQuestionButton" class="ghost-button" type="button" hidden>Nästa fråga</button>
+          <button id="quitQuizButton" class="ghost-button" type="button">Avsluta</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultView" class="view">
+      <div class="panel result-card">
+        <div class="score-ring" aria-label="Resultat">
+          <strong id="percentResult">0%</strong>
+        </div>
+        <div>
+          <h2 id="resultHeading">Resultat</h2>
+          <p id="resultDetails"></p>
+        </div>
+        <button id="restartButton" class="primary-button" type="button">Börja om</button>
+      </div>
+    </section>
+
+    <section id="dataView" class="view">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Import/export</h2>
+            <p>JSON-exporten kan importeras i samma HTML-app på andra enheter.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="exportButton" class="primary-button" type="button">Exportera quiz</button>
+          <label class="ghost-button" for="importFileInput">Importera quiz</label>
+          <input id="importFileInput" class="sr-only" type="file" accept="application/json,.json,.csv,text/csv,.txt" multiple>
+          <button id="openDeletePanelButton" class="danger-button" type="button">Ta bort quiz</button>
+        </div>
+        <p id="dataStatus" class="status"></p>
+      </div>
+
+      <div id="deletePanel" class="panel" hidden>
+        <div class="panel-header">
+          <div>
+            <h3>Välj quiz att ta bort</h3>
+            <p>Markerade quiz försvinner från biblioteket på den här enheten.</p>
+          </div>
+        </div>
+        <div id="deleteQuizList" class="delete-list"></div>
+        <div class="actions">
+          <button id="confirmDeleteButton" class="danger-button" type="button">Ta bort markerade</button>
+          <button id="cancelDeleteButton" class="ghost-button" type="button">Avbryt</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Frågebanken ligger direkt i JavaScript och kan byggas ut med fler quiz.
+    const DEFAULT_QUIZZES = [
+      {
+            "id": "quiz-1",
+            "title": "Disney och sagor",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Disney",
+                        "text": "Vad heter snögubben i Frost?",
+                        "answer": "Olaf",
+                        "options": [
+                              "Sven",
+                              "Olaf",
+                              "Kristoffer",
+                              "Hans"
+                        ]
+                  },
+                  {
+                        "category": "Disney",
+                        "text": "Vilken prinsessa tappar en glassko?",
+                        "answer": "Askungen",
+                        "options": [
+                              "Belle",
+                              "Ariel",
+                              "Askungen",
+                              "Jasmin"
+                        ]
+                  },
+                  {
+                        "category": "Disney",
+                        "text": "Vad heter lejonungen i Lejonkungen?",
+                        "answer": "Simba",
+                        "options": [
+                              "Simba",
+                              "Mufasa",
+                              "Timon",
+                              "Scar"
+                        ]
+                  },
+                  {
+                        "category": "Disney",
+                        "text": "Vilken film handlar om en fisk som heter Nemo?",
+                        "answer": "Hitta Nemo",
+                        "options": [
+                              "Hitta Doris",
+                              "Hitta Nemo",
+                              "Vaiana",
+                              "Bilar"
+                        ]
+                  },
+                  {
+                        "category": "Disney",
+                        "text": "Vad heter Musse Piggs flickvän?",
+                        "answer": "Mimmi"
+                  },
+                  {
+                        "category": "Disney",
+                        "text": "Vilken färg har Blixten McQueen?",
+                        "answer": "Röd",
+                        "options": [
+                              "Blå",
+                              "Grön",
+                              "Röd",
+                              "Gul"
+                        ]
+                  },
+                  {
+                        "category": "Disney",
+                        "text": "Vad heter krabban i Den lilla sjöjungfrun?",
+                        "answer": "Sebastian"
+                  },
+                  {
+                        "category": "Disney",
+                        "text": "I vilken film finns Buzz Lightyear?",
+                        "answer": "Toy Story",
+                        "options": [
+                              "Toy Story",
+                              "Bilar",
+                              "Frost",
+                              "Aladdin"
+                        ]
+                  },
+                  {
+                        "category": "Disney",
+                        "text": "Vad heter flickan i Skönheten och odjuret?",
+                        "answer": "Belle"
+                  },
+                  {
+                        "category": "Disney",
+                        "text": "Vilken Disneyfigur säger ofta 'Hakuna Matata'?",
+                        "answer": "Timon",
+                        "options": [
+                              "Timon",
+                              "Scar",
+                              "Elsa",
+                              "Doris"
+                        ]
+                  }
+            ]
+      },
+      {
+            "id": "quiz-2",
+            "title": "Matematik lätt",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 5 + 3?",
+                        "answer": "8",
+                        "options": [
+                              "6",
+                              "7",
+                              "8",
+                              "9"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 10 - 4?",
+                        "answer": "6",
+                        "options": [
+                              "5",
+                              "6",
+                              "7",
+                              "8"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 2 x 4?",
+                        "answer": "8",
+                        "options": [
+                              "6",
+                              "8",
+                              "10",
+                              "12"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 12 delat med 3?",
+                        "answer": "4",
+                        "options": [
+                              "3",
+                              "4",
+                              "5",
+                              "6"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vilket tal kommer efter 19?",
+                        "answer": "20"
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är hälften av 10?",
+                        "answer": "5",
+                        "options": [
+                              "3",
+                              "4",
+                              "5",
+                              "6"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Hur många sidor har en triangel?",
+                        "answer": "3",
+                        "options": [
+                              "3",
+                              "4",
+                              "5",
+                              "6"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 7 + 6?",
+                        "answer": "13"
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vilket är störst: 14 eller 41?",
+                        "answer": "41",
+                        "options": [
+                              "14",
+                              "41"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 3 x 3?",
+                        "answer": "9",
+                        "options": [
+                              "6",
+                              "8",
+                              "9",
+                              "12"
+                        ]
+                  }
+            ]
+      },
+      {
+            "id": "quiz-3",
+            "title": "Djur",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Djur",
+                        "text": "Vilket djur säger mjau?",
+                        "answer": "Katt",
+                        "options": [
+                              "Hund",
+                              "Katt",
+                              "Ko",
+                              "Häst"
+                        ]
+                  },
+                  {
+                        "category": "Djur",
+                        "text": "Vilket djur är störst på land?",
+                        "answer": "Elefant",
+                        "options": [
+                              "Lejon",
+                              "Elefant",
+                              "Giraff",
+                              "Häst"
+                        ]
+                  },
+                  {
+                        "category": "Djur",
+                        "text": "Vad kallas en hästunge?",
+                        "answer": "Föl"
+                  },
+                  {
+                        "category": "Djur",
+                        "text": "Vilket djur har lång hals?",
+                        "answer": "Giraff",
+                        "options": [
+                              "Zebra",
+                              "Giraff",
+                              "Kamel",
+                              "Ko"
+                        ]
+                  },
+                  {
+                        "category": "Djur",
+                        "text": "Vad äter pandor helst?",
+                        "answer": "Bambu",
+                        "options": [
+                              "Bambu",
+                              "Fisk",
+                              "Morötter",
+                              "Äpplen"
+                        ]
+                  },
+                  {
+                        "category": "Djur",
+                        "text": "Vilket djur kan spinna nät?",
+                        "answer": "Spindel"
+                  },
+                  {
+                        "category": "Djur",
+                        "text": "Vilken fågel kan ofta härma ljud?",
+                        "answer": "Papegoja",
+                        "options": [
+                              "Duva",
+                              "Papegoja",
+                              "Anka",
+                              "Mås"
+                        ]
+                  },
+                  {
+                        "category": "Djur",
+                        "text": "Vilket djur är känt som djungelns konung?",
+                        "answer": "Lejon"
+                  },
+                  {
+                        "category": "Djur",
+                        "text": "Hur många ben har en insekt?",
+                        "answer": "6",
+                        "options": [
+                              "4",
+                              "6",
+                              "8",
+                              "10"
+                        ]
+                  },
+                  {
+                        "category": "Djur",
+                        "text": "Vilket djur lever både i vatten och på land och säger kvack?",
+                        "answer": "Groda"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-4",
+            "title": "Rymden",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Rymden",
+                        "text": "Vad heter planeten vi bor på?",
+                        "answer": "Jorden",
+                        "options": [
+                              "Mars",
+                              "Jorden",
+                              "Venus",
+                              "Saturnus"
+                        ]
+                  },
+                  {
+                        "category": "Rymden",
+                        "text": "Vad heter vår stjärna?",
+                        "answer": "Solen"
+                  },
+                  {
+                        "category": "Rymden",
+                        "text": "Vilken planet kallas den röda planeten?",
+                        "answer": "Mars",
+                        "options": [
+                              "Mars",
+                              "Jupiter",
+                              "Merkurius",
+                              "Neptunus"
+                        ]
+                  },
+                  {
+                        "category": "Rymden",
+                        "text": "Vad lyser på natthimlen och kretsar runt jorden?",
+                        "answer": "Månen"
+                  },
+                  {
+                        "category": "Rymden",
+                        "text": "Vilken planet har stora ringar?",
+                        "answer": "Saturnus",
+                        "options": [
+                              "Jorden",
+                              "Saturnus",
+                              "Mars",
+                              "Venus"
+                        ]
+                  },
+                  {
+                        "category": "Rymden",
+                        "text": "Vad kallas en person som reser i rymden?",
+                        "answer": "Astronaut"
+                  },
+                  {
+                        "category": "Rymden",
+                        "text": "Är solen en planet eller en stjärna?",
+                        "answer": "Stjärna",
+                        "options": [
+                              "Planet",
+                              "Stjärna"
+                        ]
+                  },
+                  {
+                        "category": "Rymden",
+                        "text": "Vilken planet är störst i vårt solsystem?",
+                        "answer": "Jupiter"
+                  },
+                  {
+                        "category": "Rymden",
+                        "text": "Vad använder man för att titta på stjärnor långt borta?",
+                        "answer": "Teleskop",
+                        "options": [
+                              "Mikroskop",
+                              "Teleskop",
+                              "Kompass",
+                              "Kikare"
+                        ]
+                  },
+                  {
+                        "category": "Rymden",
+                        "text": "Hur många månar har jorden?",
+                        "answer": "1",
+                        "options": [
+                              "1",
+                              "2",
+                              "3",
+                              "4"
+                        ]
+                  }
+            ]
+      },
+      {
+            "id": "quiz-5",
+            "title": "Sverige",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Sverige",
+                        "text": "Vad heter Sveriges huvudstad?",
+                        "answer": "Stockholm",
+                        "options": [
+                              "Göteborg",
+                              "Malmö",
+                              "Stockholm",
+                              "Uppsala"
+                        ]
+                  },
+                  {
+                        "category": "Sverige",
+                        "text": "Vilka färger har Sveriges flagga?",
+                        "answer": "Blå och gul",
+                        "options": [
+                              "Röd och vit",
+                              "Blå och gul",
+                              "Grön och vit",
+                              "Svart och gul"
+                        ]
+                  },
+                  {
+                        "category": "Sverige",
+                        "text": "Vad heter Sveriges största sjö?",
+                        "answer": "Vänern"
+                  },
+                  {
+                        "category": "Sverige",
+                        "text": "Vilket djur är älgen?",
+                        "answer": "Ett hjortdjur",
+                        "options": [
+                              "En fågel",
+                              "Ett hjortdjur",
+                              "En fisk",
+                              "En insekt"
+                        ]
+                  },
+                  {
+                        "category": "Sverige",
+                        "text": "Vad heter pengarna i Sverige?",
+                        "answer": "Kronor"
+                  },
+                  {
+                        "category": "Sverige",
+                        "text": "Vilken stad ligger Liseberg i?",
+                        "answer": "Göteborg",
+                        "options": [
+                              "Stockholm",
+                              "Göteborg",
+                              "Malmö",
+                              "Kiruna"
+                        ]
+                  },
+                  {
+                        "category": "Sverige",
+                        "text": "Vad heter Sveriges kung?",
+                        "answer": "Carl XVI Gustaf"
+                  },
+                  {
+                        "category": "Sverige",
+                        "text": "Vilken årstid brukar det snöa mest?",
+                        "answer": "Vinter",
+                        "options": [
+                              "Sommar",
+                              "Vinter",
+                              "Vår",
+                              "Höst"
+                        ]
+                  },
+                  {
+                        "category": "Sverige",
+                        "text": "Vad heter ön där Visby ligger?",
+                        "answer": "Gotland"
+                  },
+                  {
+                        "category": "Sverige",
+                        "text": "Vilket språk pratar man mest i Sverige?",
+                        "answer": "Svenska",
+                        "options": [
+                              "Danska",
+                              "Norska",
+                              "Svenska",
+                              "Finska"
+                        ]
+                  }
+            ]
+      },
+      {
+            "id": "quiz-6",
+            "title": "Blandat kul",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Blandat",
+                        "text": "Hur många dagar har en vecka?",
+                        "answer": "7",
+                        "options": [
+                              "5",
+                              "6",
+                              "7",
+                              "8"
+                        ]
+                  },
+                  {
+                        "category": "Blandat",
+                        "text": "Vilken färg får man om man blandar blått och gult?",
+                        "answer": "Grön"
+                  },
+                  {
+                        "category": "Blandat",
+                        "text": "Vad använder man för att borsta tänderna?",
+                        "answer": "Tandborste",
+                        "options": [
+                              "Kam",
+                              "Tandborste",
+                              "Sked",
+                              "Penna"
+                        ]
+                  },
+                  {
+                        "category": "Blandat",
+                        "text": "Vilken månad kommer julafton i?",
+                        "answer": "December"
+                  },
+                  {
+                        "category": "Blandat",
+                        "text": "Hur många hjul har en vanlig cykel?",
+                        "answer": "2",
+                        "options": [
+                              "1",
+                              "2",
+                              "3",
+                              "4"
+                        ]
+                  },
+                  {
+                        "category": "Blandat",
+                        "text": "Vad heter motsatsen till natt?",
+                        "answer": "Dag"
+                  },
+                  {
+                        "category": "Blandat",
+                        "text": "Vilken kroppsdel använder man för att höra?",
+                        "answer": "Öron",
+                        "options": [
+                              "Ögon",
+                              "Öron",
+                              "Näsa",
+                              "Mun"
+                        ]
+                  },
+                  {
+                        "category": "Blandat",
+                        "text": "Vad heter det när vatten blir till is?",
+                        "answer": "Fryser"
+                  },
+                  {
+                        "category": "Blandat",
+                        "text": "Vilket fordon går på räls?",
+                        "answer": "Tåg",
+                        "options": [
+                              "Bil",
+                              "Båt",
+                              "Tåg",
+                              "Cykel"
+                        ]
+                  },
+                  {
+                        "category": "Blandat",
+                        "text": "Hur många fingrar har de flesta människor på två händer?",
+                        "answer": "10"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-7",
+            "title": "Matematik klurig",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 15 + 7?",
+                        "answer": "22"
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 20 - 9?",
+                        "answer": "11",
+                        "options": [
+                              "9",
+                              "10",
+                              "11",
+                              "12"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 4 x 5?",
+                        "answer": "20",
+                        "options": [
+                              "15",
+                              "20",
+                              "25",
+                              "30"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 30 delat med 5?",
+                        "answer": "6"
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vilket tal är jämnt?",
+                        "answer": "12",
+                        "options": [
+                              "7",
+                              "9",
+                              "11",
+                              "12"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 100 - 25?",
+                        "answer": "75"
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Hur många minuter är en timme?",
+                        "answer": "60",
+                        "options": [
+                              "30",
+                              "45",
+                              "60",
+                              "100"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 9 + 9?",
+                        "answer": "18"
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är dubbelt så mycket som 8?",
+                        "answer": "16",
+                        "options": [
+                              "12",
+                              "14",
+                              "16",
+                              "18"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vilket tal saknas: 2, 4, 6, __, 10?",
+                        "answer": "8"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-8",
+            "title": "Film och figurer",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Film",
+                        "text": "Vad heter trollkarlen med ett ärr i pannan?",
+                        "answer": "Harry Potter"
+                  },
+                  {
+                        "category": "Film",
+                        "text": "Vilken färg har Smurfarna?",
+                        "answer": "Blå",
+                        "options": [
+                              "Röd",
+                              "Grön",
+                              "Blå",
+                              "Gul"
+                        ]
+                  },
+                  {
+                        "category": "Film",
+                        "text": "Vad heter den gula svampen som bor i havet?",
+                        "answer": "SvampBob"
+                  },
+                  {
+                        "category": "Film",
+                        "text": "Vilket djur är Bamse?",
+                        "answer": "Björn",
+                        "options": [
+                              "Hund",
+                              "Katt",
+                              "Björn",
+                              "Räv"
+                        ]
+                  },
+                  {
+                        "category": "Film",
+                        "text": "Vad äter Bamse för att bli stark?",
+                        "answer": "Dunderhonung"
+                  },
+                  {
+                        "category": "Film",
+                        "text": "Vilken figur har röd mössa och vitt skägg på julen?",
+                        "answer": "Tomten",
+                        "options": [
+                              "Påskharen",
+                              "Tomten",
+                              "Tandfen",
+                              "Spöket Laban"
+                        ]
+                  },
+                  {
+                        "category": "Film",
+                        "text": "Vad heter Pippis häst?",
+                        "answer": "Lilla Gubben"
+                  },
+                  {
+                        "category": "Film",
+                        "text": "Vilken färg har Minioner oftast?",
+                        "answer": "Gul",
+                        "options": [
+                              "Blå",
+                              "Gul",
+                              "Rosa",
+                              "Grön"
+                        ]
+                  },
+                  {
+                        "category": "Film",
+                        "text": "Vad heter åsnan i Shrek?",
+                        "answer": "Åsnan"
+                  },
+                  {
+                        "category": "Film",
+                        "text": "Vilken figur säger ofta 'D'oh!'?",
+                        "answer": "Homer Simpson"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-9",
+            "title": "Natur och väder",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Natur",
+                        "text": "Vad faller från moln när det regnar?",
+                        "answer": "Vatten",
+                        "options": [
+                              "Sand",
+                              "Vatten",
+                              "Löv",
+                              "Stenar"
+                        ]
+                  },
+                  {
+                        "category": "Natur",
+                        "text": "Vad behöver växter för att växa?",
+                        "answer": "Vatten och sol"
+                  },
+                  {
+                        "category": "Natur",
+                        "text": "Vilken årstid kommer efter vinter?",
+                        "answer": "Vår",
+                        "options": [
+                              "Sommar",
+                              "Höst",
+                              "Vår",
+                              "Vinter"
+                        ]
+                  },
+                  {
+                        "category": "Natur",
+                        "text": "Vad kallas fruset vatten?",
+                        "answer": "Is"
+                  },
+                  {
+                        "category": "Natur",
+                        "text": "Vad heter det stora blå området på kartan?",
+                        "answer": "Hav",
+                        "options": [
+                              "Berg",
+                              "Hav",
+                              "Skog",
+                              "Öken"
+                        ]
+                  },
+                  {
+                        "category": "Natur",
+                        "text": "Vilken färg har gräs oftast?",
+                        "answer": "Grön"
+                  },
+                  {
+                        "category": "Natur",
+                        "text": "Vad kallas ett högt berg som kan spruta lava?",
+                        "answer": "Vulkan",
+                        "options": [
+                              "Kulle",
+                              "Vulkan",
+                              "Grotta",
+                              "Flod"
+                        ]
+                  },
+                  {
+                        "category": "Natur",
+                        "text": "Vad heter ljudet som ofta kommer efter blixten?",
+                        "answer": "Åska"
+                  },
+                  {
+                        "category": "Natur",
+                        "text": "Vilket väder behöver man paraply till?",
+                        "answer": "Regn",
+                        "options": [
+                              "Sol",
+                              "Regn",
+                              "Snö",
+                              "Dimma"
+                        ]
+                  },
+                  {
+                        "category": "Natur",
+                        "text": "Vad kallas många träd tillsammans?",
+                        "answer": "Skog"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-10",
+            "title": "Superblandningen",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Blandat",
+                        "text": "Vad är 6 + 6?",
+                        "answer": "12",
+                        "options": [
+                              "10",
+                              "11",
+                              "12",
+                              "13"
+                        ]
+                  },
+                  {
+                        "category": "Disney",
+                        "text": "Vad heter renen i Frost?",
+                        "answer": "Sven"
+                  },
+                  {
+                        "category": "Djur",
+                        "text": "Vilket djur lägger ägg och säger kvack?",
+                        "answer": "Anka",
+                        "options": [
+                              "Ko",
+                              "Anka",
+                              "Hund",
+                              "Katt"
+                        ]
+                  },
+                  {
+                        "category": "Sverige",
+                        "text": "Vilken färg har ett vanligt stoppljus när man ska stanna?",
+                        "answer": "Röd"
+                  },
+                  {
+                        "category": "Rymden",
+                        "text": "Vilken planet bor vi på?",
+                        "answer": "Jorden",
+                        "options": [
+                              "Mars",
+                              "Jorden",
+                              "Jupiter",
+                              "Venus"
+                        ]
+                  },
+                  {
+                        "category": "Matematik",
+                        "text": "Vad är 5 x 2?",
+                        "answer": "10"
+                  },
+                  {
+                        "category": "Natur",
+                        "text": "Vad heter det när snö blir vatten?",
+                        "answer": "Smälter"
+                  },
+                  {
+                        "category": "Film",
+                        "text": "Vad heter flickan med apkompisen Herr Nilsson?",
+                        "answer": "Pippi"
+                  },
+                  {
+                        "category": "Blandat",
+                        "text": "Hur många månader har ett år?",
+                        "answer": "12",
+                        "options": [
+                              "10",
+                              "11",
+                              "12",
+                              "13"
+                        ]
+                  },
+                  {
+                        "category": "Disney",
+                        "text": "Vilken prinsessa bor under havet?",
+                        "answer": "Ariel"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-11",
+            "title": "Fotboll",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Fotboll",
+                        "text": "Hur många spelare brukar ett lag ha på planen?",
+                        "answer": "11",
+                        "options": [
+                              "7",
+                              "9",
+                              "11",
+                              "13"
+                        ]
+                  },
+                  {
+                        "category": "Fotboll",
+                        "text": "Vad kallas personen som dömer matchen?",
+                        "answer": "Domare"
+                  },
+                  {
+                        "category": "Fotboll",
+                        "text": "Vilken kroppsdel får målvakten använda i straffområdet?",
+                        "answer": "Händerna",
+                        "options": [
+                              "Händerna",
+                              "Armbågen",
+                              "Knäet",
+                              "Axeln"
+                        ]
+                  },
+                  {
+                        "category": "Fotboll",
+                        "text": "Hur många halvlekar spelas i en fotbollsmatch?",
+                        "answer": "2"
+                  },
+                  {
+                        "category": "Fotboll",
+                        "text": "Vad heter det när bollen går i mål?",
+                        "answer": "Mål"
+                  },
+                  {
+                        "category": "Fotboll",
+                        "text": "Vilken färg har gräs oftast?",
+                        "answer": "Grön",
+                        "options": [
+                              "Blå",
+                              "Gul",
+                              "Grön",
+                              "Röd"
+                        ]
+                  },
+                  {
+                        "category": "Fotboll",
+                        "text": "Vad sparkar man på i fotboll?",
+                        "answer": "Bollen"
+                  },
+                  {
+                        "category": "Fotboll",
+                        "text": "Vad heter platsen där målvakten står?",
+                        "answer": "Målet"
+                  },
+                  {
+                        "category": "Fotboll",
+                        "text": "Vad kallas en passning med huvudet?",
+                        "answer": "Nick"
+                  },
+                  {
+                        "category": "Fotboll",
+                        "text": "Vilket land uppfann fotbollens moderna regler?",
+                        "answer": "England"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-12",
+            "title": "Hav och vatten",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Hav",
+                        "text": "Vilket djur är störst i havet?",
+                        "answer": "Blåval",
+                        "options": [
+                              "Haj",
+                              "Blåval",
+                              "Delfin",
+                              "Bläckfisk"
+                        ]
+                  },
+                  {
+                        "category": "Hav",
+                        "text": "Vad heter fisken i Hitta Nemo?",
+                        "answer": "Nemo"
+                  },
+                  {
+                        "category": "Hav",
+                        "text": "Vad kallas fruset vatten?",
+                        "answer": "Is"
+                  },
+                  {
+                        "category": "Hav",
+                        "text": "Vad behöver fiskar för att andas?",
+                        "answer": "Vatten"
+                  },
+                  {
+                        "category": "Hav",
+                        "text": "Vilket djur har åtta armar?",
+                        "answer": "Bläckfisk",
+                        "options": [
+                              "Krabba",
+                              "Bläckfisk",
+                              "Säl",
+                              "Val"
+                        ]
+                  },
+                  {
+                        "category": "Hav",
+                        "text": "Vad heter jordens största hav?",
+                        "answer": "Stilla havet"
+                  },
+                  {
+                        "category": "Hav",
+                        "text": "Vilket djur brukar hoppa högt över vattenytan?",
+                        "answer": "Delfin"
+                  },
+                  {
+                        "category": "Hav",
+                        "text": "Vad kallas en mycket stor våg?",
+                        "answer": "Tsunami"
+                  },
+                  {
+                        "category": "Hav",
+                        "text": "Är havsvatten salt eller sött?",
+                        "answer": "Salt",
+                        "options": [
+                              "Salt",
+                              "Sött"
+                        ]
+                  },
+                  {
+                        "category": "Hav",
+                        "text": "Vad använder man för att färdas på havet?",
+                        "answer": "Båt"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-13",
+            "title": "Kroppen",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Kroppen",
+                        "text": "Hur många ögon har de flesta människor?",
+                        "answer": "2"
+                  },
+                  {
+                        "category": "Kroppen",
+                        "text": "Vilken kroppsdel använder du för att se?",
+                        "answer": "Ögon",
+                        "options": [
+                              "Ögon",
+                              "Öron",
+                              "Näsa",
+                              "Mun"
+                        ]
+                  },
+                  {
+                        "category": "Kroppen",
+                        "text": "Vad sitter ovanför munnen?",
+                        "answer": "Näsa"
+                  },
+                  {
+                        "category": "Kroppen",
+                        "text": "Hur många fingrar har man oftast på en hand?",
+                        "answer": "5"
+                  },
+                  {
+                        "category": "Kroppen",
+                        "text": "Vilken kroppsdel pumpar blod?",
+                        "answer": "Hjärtat"
+                  },
+                  {
+                        "category": "Kroppen",
+                        "text": "Vad använder du för att höra?",
+                        "answer": "Öron"
+                  },
+                  {
+                        "category": "Kroppen",
+                        "text": "Vilken kroppsdel hjälper dig att tänka?",
+                        "answer": "Hjärnan"
+                  },
+                  {
+                        "category": "Kroppen",
+                        "text": "Hur många ben har de flesta människor?",
+                        "answer": "2"
+                  },
+                  {
+                        "category": "Kroppen",
+                        "text": "Vad använder du för att lukta?",
+                        "answer": "Näsan"
+                  },
+                  {
+                        "category": "Kroppen",
+                        "text": "Vad sitter längst ut på armen?",
+                        "answer": "Handen"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-14",
+            "title": "Världens flaggor",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Flaggor",
+                        "text": "Vilka färger har Sveriges flagga?",
+                        "answer": "Blå och gul"
+                  },
+                  {
+                        "category": "Flaggor",
+                        "text": "Vilken färg är vanlig på Danmarks flagga?",
+                        "answer": "Röd",
+                        "options": [
+                              "Röd",
+                              "Blå",
+                              "Grön",
+                              "Svart"
+                        ]
+                  },
+                  {
+                        "category": "Flaggor",
+                        "text": "Vilket land har lönnlöv på sin flagga?",
+                        "answer": "Kanada"
+                  },
+                  {
+                        "category": "Flaggor",
+                        "text": "Vilket land har stjärnor och ränder på sin flagga?",
+                        "answer": "USA"
+                  },
+                  {
+                        "category": "Flaggor",
+                        "text": "Vilken färg har Japans cirkel på flaggan?",
+                        "answer": "Röd"
+                  },
+                  {
+                        "category": "Flaggor",
+                        "text": "Har Norges flagga ett kors?",
+                        "answer": "Ja",
+                        "options": [
+                              "Ja",
+                              "Nej"
+                        ]
+                  },
+                  {
+                        "category": "Flaggor",
+                        "text": "Vilket land har Union Jack som flagga?",
+                        "answer": "Storbritannien"
+                  },
+                  {
+                        "category": "Flaggor",
+                        "text": "Vilken färg har Finlands kors?",
+                        "answer": "Blå"
+                  },
+                  {
+                        "category": "Flaggor",
+                        "text": "Vad kallas ett lands symbol på tyg?",
+                        "answer": "Flagga"
+                  },
+                  {
+                        "category": "Flaggor",
+                        "text": "Vilket land använder blågul flagga?",
+                        "answer": "Sverige"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-15",
+            "title": "Dinosaurier",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Dinosaurier",
+                        "text": "Vilken dinosaurie hade mycket vassa tänder?",
+                        "answer": "Tyrannosaurus Rex"
+                  },
+                  {
+                        "category": "Dinosaurier",
+                        "text": "Vilken dinosaurie hade tre horn?",
+                        "answer": "Triceratops"
+                  },
+                  {
+                        "category": "Dinosaurier",
+                        "text": "Levde dinosaurier före eller efter människor?",
+                        "answer": "Före"
+                  },
+                  {
+                        "category": "Dinosaurier",
+                        "text": "Vad åt växtätande dinosaurier?",
+                        "answer": "Växter"
+                  },
+                  {
+                        "category": "Dinosaurier",
+                        "text": "Vad förkortas Tyrannosaurus Rex ofta till?",
+                        "answer": "T-Rex"
+                  },
+                  {
+                        "category": "Dinosaurier",
+                        "text": "Var dinosaurier däggdjur?",
+                        "answer": "Nej",
+                        "options": [
+                              "Ja",
+                              "Nej"
+                        ]
+                  },
+                  {
+                        "category": "Dinosaurier",
+                        "text": "Vad hittar forskare efter dinosaurier?",
+                        "answer": "Fossil"
+                  },
+                  {
+                        "category": "Dinosaurier",
+                        "text": "Kunde vissa dinosaurier flyga?",
+                        "answer": "Ja"
+                  },
+                  {
+                        "category": "Dinosaurier",
+                        "text": "Vilken färg hade dinosaurier?",
+                        "answer": "Ingen vet säkert"
+                  },
+                  {
+                        "category": "Dinosaurier",
+                        "text": "Vilken filmserie handlar om dinosaurier i en park?",
+                        "answer": "Jurassic Park"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-16",
+            "title": "Musik",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Musik",
+                        "text": "Hur många strängar har en vanlig gitarr?",
+                        "answer": "6"
+                  },
+                  {
+                        "category": "Musik",
+                        "text": "Vad använder man för att spela piano?",
+                        "answer": "Fingrarna"
+                  },
+                  {
+                        "category": "Musik",
+                        "text": "Vilket instrument slår man på med trumpinnar?",
+                        "answer": "Trummor"
+                  },
+                  {
+                        "category": "Musik",
+                        "text": "Vad kallas en grupp som sjunger tillsammans?",
+                        "answer": "Kör"
+                  },
+                  {
+                        "category": "Musik",
+                        "text": "Vilket instrument har svarta och vita tangenter?",
+                        "answer": "Piano"
+                  },
+                  {
+                        "category": "Musik",
+                        "text": "Vad kallas snabb musik man dansar till?",
+                        "answer": "Pop"
+                  },
+                  {
+                        "category": "Musik",
+                        "text": "Vad använder man för att lyssna på musik?",
+                        "answer": "Öron"
+                  },
+                  {
+                        "category": "Musik",
+                        "text": "Vilket instrument blåser man i?",
+                        "answer": "Flöjt"
+                  },
+                  {
+                        "category": "Musik",
+                        "text": "Vad heter symbolen ♫?",
+                        "answer": "Not"
+                  },
+                  {
+                        "category": "Musik",
+                        "text": "Vad kallas en person som sjunger?",
+                        "answer": "Sångare"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-17",
+            "title": "Skolan",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Skola",
+                        "text": "Vad skriver man oftast med i skolan?",
+                        "answer": "Penna"
+                  },
+                  {
+                        "category": "Skola",
+                        "text": "Vad kallas personen som undervisar?",
+                        "answer": "Lärare"
+                  },
+                  {
+                        "category": "Skola",
+                        "text": "Vad använder man för att sudda blyerts?",
+                        "answer": "Sudd"
+                  },
+                  {
+                        "category": "Skola",
+                        "text": "Hur många dagar är det oftast skola på en vecka?",
+                        "answer": "5"
+                  },
+                  {
+                        "category": "Skola",
+                        "text": "Vad läser man i en bok?",
+                        "answer": "Text"
+                  },
+                  {
+                        "category": "Skola",
+                        "text": "Vilket ämne handlar om tal och siffror?",
+                        "answer": "Matematik"
+                  },
+                  {
+                        "category": "Skola",
+                        "text": "Vad använder man för att mäta längd?",
+                        "answer": "Linjal"
+                  },
+                  {
+                        "category": "Skola",
+                        "text": "Vad kallas rasten mitt på dagen?",
+                        "answer": "Lunchrast"
+                  },
+                  {
+                        "category": "Skola",
+                        "text": "Vilket ämne handlar om djur och natur?",
+                        "answer": "Biologi"
+                  },
+                  {
+                        "category": "Skola",
+                        "text": "Vad gör man på ett prov?",
+                        "answer": "Svarar på frågor"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-18",
+            "title": "Superhjältar",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Superhjältar",
+                        "text": "Vilken hjälte kan klättra på väggar?",
+                        "answer": "Spider-Man"
+                  },
+                  {
+                        "category": "Superhjältar",
+                        "text": "Vilken hjälte har en fladdermus som symbol?",
+                        "answer": "Batman"
+                  },
+                  {
+                        "category": "Superhjältar",
+                        "text": "Vilken hjälte använder en sköld med stjärna?",
+                        "answer": "Captain America"
+                  },
+                  {
+                        "category": "Superhjältar",
+                        "text": "Vilken hjälte är känd för att vara mycket stark och grön?",
+                        "answer": "Hulk"
+                  },
+                  {
+                        "category": "Superhjältar",
+                        "text": "Vad heter superhjälten från Krypton?",
+                        "answer": "Superman"
+                  },
+                  {
+                        "category": "Superhjältar",
+                        "text": "Kan Iron Man flyga?",
+                        "answer": "Ja",
+                        "options": [
+                              "Ja",
+                              "Nej"
+                        ]
+                  },
+                  {
+                        "category": "Superhjältar",
+                        "text": "Vad heter kvinnliga krigaren från Themyscira?",
+                        "answer": "Wonder Woman"
+                  },
+                  {
+                        "category": "Superhjältar",
+                        "text": "Vilken hjälte använder hammaren Mjölner?",
+                        "answer": "Thor"
+                  },
+                  {
+                        "category": "Superhjältar",
+                        "text": "Är Spider-Man människa eller robot?",
+                        "answer": "Människa"
+                  },
+                  {
+                        "category": "Superhjältar",
+                        "text": "Vad gör superhjältar ofta?",
+                        "answer": "Hjälper människor"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-19",
+            "title": "Teknik och prylar",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Teknik",
+                        "text": "Vad använder man för att ringa någon?",
+                        "answer": "Telefon"
+                  },
+                  {
+                        "category": "Teknik",
+                        "text": "Vad använder man för att styra en dator?",
+                        "answer": "Mus",
+                        "options": [
+                              "Mus",
+                              "Sked",
+                              "Penna",
+                              "Boll"
+                        ]
+                  },
+                  {
+                        "category": "Teknik",
+                        "text": "Vad heter skärmen man tittar på film på hemma?",
+                        "answer": "TV"
+                  },
+                  {
+                        "category": "Teknik",
+                        "text": "Vad behöver en ficklampa för att lysa?",
+                        "answer": "Batteri"
+                  },
+                  {
+                        "category": "Teknik",
+                        "text": "Vad använder man för att skriva på datorn?",
+                        "answer": "Tangentbord"
+                  },
+                  {
+                        "category": "Teknik",
+                        "text": "Kan en surfplatta visa filmer?",
+                        "answer": "Ja"
+                  },
+                  {
+                        "category": "Teknik",
+                        "text": "Vad heter den lilla pilen på datorskärmen?",
+                        "answer": "Markör"
+                  },
+                  {
+                        "category": "Teknik",
+                        "text": "Vad används internet till?",
+                        "answer": "Att koppla ihop datorer"
+                  },
+                  {
+                        "category": "Teknik",
+                        "text": "Vad kan ta bilder digitalt?",
+                        "answer": "Kamera"
+                  },
+                  {
+                        "category": "Teknik",
+                        "text": "Vad laddar man en mobil med?",
+                        "answer": "Laddare"
+                  }
+            ]
+      },
+      {
+            "id": "quiz-20",
+            "title": "Jul och högtider",
+            "description": "Inbyggt quiz",
+            "source": "Inbyggt",
+            "questions": [
+                  {
+                        "category": "Högtider",
+                        "text": "I vilken månad firar man julafton?",
+                        "answer": "December"
+                  },
+                  {
+                        "category": "Högtider",
+                        "text": "Vad brukar man pynta med i julgranen?",
+                        "answer": "Julkulor"
+                  },
+                  {
+                        "category": "Högtider",
+                        "text": "Vem kommer ofta med julklappar i sagorna?",
+                        "answer": "Tomten"
+                  },
+                  {
+                        "category": "Högtider",
+                        "text": "Vilken högtid har påskägg?",
+                        "answer": "Påsk"
+                  },
+                  {
+                        "category": "Högtider",
+                        "text": "Vad brukar man blåsa ut på sin födelsedagstårta?",
+                        "answer": "Ljus"
+                  },
+                  {
+                        "category": "Högtider",
+                        "text": "Vilken årstid är julen i Sverige?",
+                        "answer": "Vinter"
+                  },
+                  {
+                        "category": "Högtider",
+                        "text": "Vad gömmer påskharen ofta?",
+                        "answer": "Påskägg"
+                  },
+                  {
+                        "category": "Högtider",
+                        "text": "Hur många gånger fyller man år varje år?",
+                        "answer": "1"
+                  },
+                  {
+                        "category": "Högtider",
+                        "text": "Vad sjunger många runt jul?",
+                        "answer": "Julsånger"
+                  },
+                  {
+                        "category": "Högtider",
+                        "text": "Vad öppnar man på julafton?",
+                        "answer": "Julklappar"
+                  }
+            ]
+      }
+];
+
+    const STORAGE_KEY = "quizstudio.customQuizzes.v1";
+    const DELETED_QUIZ_IDS_KEY = "quizstudio.deletedQuizIds.v1";
+
+    const elements = {
+      tabs: document.querySelectorAll("[data-view-target]"),
+      views: document.querySelectorAll(".view"),
+      quizList: document.getElementById("quizList"),
+      librarySummary: document.getElementById("librarySummary"),
+      categoryList: document.getElementById("categoryList"),
+      categorySummary: document.getElementById("categorySummary"),
+      startQuizButton: document.getElementById("startQuizButton"),
+      startStatus: document.getElementById("startStatus"),
+      progressText: document.getElementById("progressText"),
+      scoreText: document.getElementById("scoreText"),
+      progressFill: document.getElementById("progressFill"),
+      questionCategory: document.getElementById("questionCategory"),
+      questionText: document.getElementById("questionText"),
+      answerArea: document.getElementById("answerArea"),
+      feedback: document.getElementById("feedback"),
+      submitAnswerButton: document.getElementById("submitAnswerButton"),
+      nextQuestionButton: document.getElementById("nextQuestionButton"),
+      quitQuizButton: document.getElementById("quitQuizButton"),
+      percentResult: document.getElementById("percentResult"),
+      resultHeading: document.getElementById("resultHeading"),
+      resultDetails: document.getElementById("resultDetails"),
+      restartButton: document.getElementById("restartButton"),
+      exportButton: document.getElementById("exportButton"),
+      importFileInput: document.getElementById("importFileInput"),
+      openDeletePanelButton: document.getElementById("openDeletePanelButton"),
+      deletePanel: document.getElementById("deletePanel"),
+      deleteQuizList: document.getElementById("deleteQuizList"),
+      confirmDeleteButton: document.getElementById("confirmDeleteButton"),
+      cancelDeleteButton: document.getElementById("cancelDeleteButton"),
+      dataStatus: document.getElementById("dataStatus")
+    };
+
+    const state = {
+      customQuizzes: loadCustomQuizzes(),
+      deletedQuizIds: loadDeletedQuizIds(),
+      selectedQuizId: null,
+      selectedCategories: new Set(),
+      activeQuestions: [],
+      currentIndex: 0,
+      score: 0,
+      selectedOption: "",
+      answered: false
+    };
+
+    function getAllQuizzes() {
+      return [...new Map([...DEFAULT_QUIZZES, ...state.customQuizzes].map((quiz) => [quiz.id, quiz])).values()]
+        .filter((quiz) => !state.deletedQuizIds.has(quiz.id));
+    }
+
+    function loadCustomQuizzes() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(saved) ? saved.filter(isValidQuiz) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCustomQuizzes() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.customQuizzes));
+    }
+
+    function loadDeletedQuizIds() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(DELETED_QUIZ_IDS_KEY) || "[]");
+        return new Set(Array.isArray(saved) ? saved.map(String) : []);
+      } catch {
+        return new Set();
+      }
+    }
+
+    function saveDeletedQuizIds() {
+      localStorage.setItem(DELETED_QUIZ_IDS_KEY, JSON.stringify([...state.deletedQuizIds]));
+    }
+
+    function isValidQuiz(quiz) {
+      return Boolean(
+        quiz &&
+        typeof quiz.title === "string" &&
+        Array.isArray(quiz.questions) &&
+        quiz.questions.every((question) =>
+          question &&
+          typeof question.category === "string" &&
+          typeof getImportedQuestionText(question) === "string" &&
+          typeof getImportedAnswer(question) === "string"
+        )
+      );
+    }
+
+    function switchView(viewId) {
+      elements.views.forEach((view) => view.classList.toggle("is-active", view.id === viewId));
+      elements.tabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.viewTarget === viewId));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function getQuizById(id) {
+      return getAllQuizzes().find((quiz) => quiz.id === id) || getAllQuizzes()[0];
+    }
+
+    function syncSelectedQuiz() {
+      const quizzes = getAllQuizzes();
+      const currentQuiz = quizzes.find((quiz) => quiz.id === state.selectedQuizId);
+      if (currentQuiz) return currentQuiz;
+
+      const fallbackQuiz = quizzes[0] || null;
+      state.selectedQuizId = fallbackQuiz ? fallbackQuiz.id : null;
+      state.selectedCategories = fallbackQuiz ? new Set(getCategories(fallbackQuiz)) : new Set();
+      return fallbackQuiz;
+    }
+
+    function getCategories(quiz) {
+      return [...new Set(quiz.questions.map((question) => question.category.trim()).filter(Boolean))].sort();
+    }
+
+    function renderQuizList() {
+      const quizzes = getAllQuizzes();
+      syncSelectedQuiz();
+
+      elements.librarySummary.textContent = quizzes.length === 1
+        ? "1 quiz tillgängligt"
+        : `${quizzes.length} quiz tillgängliga`;
+      elements.quizList.innerHTML = "";
+
+      if (quizzes.length === 0) {
+        elements.quizList.innerHTML = `<div class="empty-state">Inga quiz finns i biblioteket. Importera ett quiz för att börja.</div>`;
+        renderDeleteQuizList();
+        return;
+      }
+
+      quizzes.forEach((quiz) => {
+        const categories = getCategories(quiz);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `quiz-card${quiz.id === state.selectedQuizId ? " is-selected" : ""}`;
+        button.innerHTML = `
+          <strong>${escapeHtml(quiz.title)}</strong>
+          <span>${escapeHtml(quiz.description || "Eget quiz")}</span>
+          <span class="card-foot">
+            <span class="pill">${escapeHtml(quiz.source || "Eget")}</span>
+            ${quiz.questions.length} frågor · ${categories.length} kategorier
+          </span>
+        `;
+        button.addEventListener("click", () => {
+          state.selectedQuizId = quiz.id;
+          state.selectedCategories = new Set(categories);
+          renderQuizList();
+          renderCategories();
+        });
+        elements.quizList.appendChild(button);
+      });
+
+      renderDeleteQuizList();
+    }
+
+    function renderCategories() {
+      const quiz = getQuizById(state.selectedQuizId);
+      if (!quiz) {
+        elements.categoryList.innerHTML = `<div class="empty-state">Inga quiz hittades.</div>`;
+        elements.categorySummary.textContent = "Importera ett quiz först.";
+        elements.startStatus.textContent = "Inga frågor valda";
+        elements.startQuizButton.disabled = true;
+        return;
+      }
+
+      const categories = getCategories(quiz);
+      elements.categoryList.innerHTML = "";
+
+      categories.forEach((category) => {
+        const label = document.createElement("label");
+        label.className = "category-choice";
+        label.innerHTML = `
+          <input type="checkbox" value="${escapeAttribute(category)}" ${state.selectedCategories.has(category) ? "checked" : ""}>
+          <span>${escapeHtml(category)}</span>
+        `;
+        label.querySelector("input").addEventListener("change", (event) => {
+          if (event.target.checked) {
+            state.selectedCategories.add(category);
+          } else {
+            state.selectedCategories.delete(category);
+          }
+          updateStartState();
+        });
+        elements.categoryList.appendChild(label);
+      });
+
+      updateStartState();
+    }
+
+    function updateStartState() {
+      const quiz = getQuizById(state.selectedQuizId);
+      const selectedCount = state.selectedCategories.size;
+      const questionCount = quiz
+        ? quiz.questions.filter((question) => state.selectedCategories.has(question.category)).length
+        : 0;
+
+      elements.categorySummary.textContent = selectedCount === 1
+        ? "1 kategori markerad"
+        : `${selectedCount} kategorier markerade`;
+      elements.startStatus.textContent = questionCount > 0 ? `${questionCount} frågor valda` : "Välj minst en kategori";
+      elements.startQuizButton.disabled = questionCount === 0;
+    }
+
+    function startQuiz() {
+      const quiz = getQuizById(state.selectedQuizId);
+      if (!quiz) return;
+
+      state.activeQuestions = quiz.questions.filter((question) => state.selectedCategories.has(question.category));
+      state.currentIndex = 0;
+      state.score = 0;
+      state.selectedOption = "";
+      state.answered = false;
+
+      renderQuestion();
+      switchView("quizView");
+    }
+
+    function renderQuestion() {
+      const question = state.activeQuestions[state.currentIndex];
+      const progress = ((state.currentIndex) / state.activeQuestions.length) * 100;
+      state.selectedOption = "";
+      state.answered = false;
+
+      elements.progressText.textContent = `Fråga ${state.currentIndex + 1} / ${state.activeQuestions.length}`;
+      elements.scoreText.textContent = `${state.score} rätt`;
+      elements.progressFill.style.width = `${progress}%`;
+      elements.questionCategory.textContent = question.category;
+      elements.questionText.textContent = question.text;
+      elements.feedback.className = "feedback";
+      elements.feedback.textContent = "";
+      elements.submitAnswerButton.hidden = false;
+      elements.nextQuestionButton.hidden = true;
+      elements.nextQuestionButton.textContent = state.currentIndex === state.activeQuestions.length - 1
+        ? "Visa resultat"
+        : "Nästa fråga";
+
+      renderAnswerControl(question);
+    }
+
+    function renderAnswerControl(question) {
+      elements.answerArea.innerHTML = "";
+
+      if (Array.isArray(question.options) && question.options.length > 0) {
+        question.options.forEach((option) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "option-button";
+          button.textContent = option;
+          button.addEventListener("click", () => {
+            if (state.answered) return;
+            state.selectedOption = option;
+            document.querySelectorAll(".option-button").forEach((item) => item.classList.remove("is-selected"));
+            button.classList.add("is-selected");
+          });
+          elements.answerArea.appendChild(button);
+        });
+        return;
+      }
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "text-answer";
+      input.placeholder = "Skriv ditt svar";
+      input.autocomplete = "off";
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") checkAnswer();
+      });
+      elements.answerArea.appendChild(input);
+      input.focus();
+    }
+
+    function checkAnswer() {
+      const question = state.activeQuestions[state.currentIndex];
+      const hasOptions = Array.isArray(question.options) && question.options.length > 0;
+      const userAnswer = hasOptions
+        ? state.selectedOption
+        : elements.answerArea.querySelector("input")?.value || "";
+
+      if (!normalizeAnswer(userAnswer)) {
+        showFeedback(false, "Skriv eller välj ett svar först.", false);
+        return;
+      }
+
+      const acceptedAnswers = [question.answer, ...(question.acceptedAnswers || [])].map(normalizeAnswer);
+      const isCorrect = acceptedAnswers.includes(normalizeAnswer(userAnswer));
+
+      state.answered = true;
+      if (isCorrect) state.score += 1;
+
+      showFeedback(isCorrect, isCorrect ? "Rätt!" : `Fel! Rätt svar: ${question.answer}`, true);
+      markOptions(question, userAnswer);
+      elements.submitAnswerButton.hidden = true;
+      elements.nextQuestionButton.hidden = false;
+      elements.scoreText.textContent = `${state.score} rätt`;
+      elements.progressFill.style.width = `${((state.currentIndex + 1) / state.activeQuestions.length) * 100}%`;
+    }
+
+    function showFeedback(isCorrect, message, finalState) {
+      elements.feedback.textContent = message;
+      elements.feedback.className = `feedback is-visible ${isCorrect ? "is-correct" : "is-wrong"}`;
+      if (!finalState) {
+        elements.feedback.className = "feedback is-visible is-wrong";
+      }
+    }
+
+    function markOptions(question, userAnswer) {
+      document.querySelectorAll(".option-button").forEach((button) => {
+        button.disabled = true;
+        if (normalizeAnswer(button.textContent) === normalizeAnswer(question.answer)) {
+          button.classList.add("is-correct");
+        } else if (normalizeAnswer(button.textContent) === normalizeAnswer(userAnswer)) {
+          button.classList.add("is-wrong");
+        }
+      });
+    }
+
+    function nextQuestion() {
+      if (state.currentIndex < state.activeQuestions.length - 1) {
+        state.currentIndex += 1;
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      const total = state.activeQuestions.length;
+      const percent = total ? Math.round((state.score / total) * 100) : 0;
+      elements.percentResult.textContent = `${percent}%`;
+      elements.resultHeading.textContent = `${state.score} av ${total} rätt`;
+      elements.resultDetails.textContent = `Du fick ${percent} procent rätt.`;
+      switchView("resultView");
+    }
+
+    // Fritextsvar rättas case-insensitive och med extra mellanslag borttagna.
+    function normalizeAnswer(value) {
+      return String(value || "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLocaleLowerCase("sv-SE");
+    }
+
+    function exportQuizzes() {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        quizzes: getAllQuizzes().map(({ id, title, description, source, questions }) => ({
+          id,
+          title,
+          description,
+          source: source === "Inbyggt" ? "Importerad" : source,
+          questions
+        }))
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "quizstudio-export.json";
+      link.click();
+      URL.revokeObjectURL(url);
+      setStatus(elements.dataStatus, "Quiz exporterades.", true);
+    }
+
+    async function importQuizFiles(fileList) {
+      const files = Array.from(fileList || []);
+      if (files.length === 0) return;
+
+      const builtInIds = new Set(DEFAULT_QUIZZES.map((quiz) => quiz.id));
+      const customById = new Map(state.customQuizzes.map((quiz) => [quiz.id, quiz]));
+      const failedFiles = [];
+      let firstSavedId = "";
+      let importedCount = 0;
+
+      try {
+        for (const file of files) {
+          try {
+            const text = await file.text();
+            const imported = parseImportedQuizzes(text, file.name);
+            const cleaned = normalizeImportedQuizzes(imported);
+
+            if (cleaned.length === 0) throw new Error("Inga giltiga quiz hittades.");
+
+            cleaned.forEach((quiz) => {
+              const id = builtInIds.has(quiz.id) ? `${quiz.id}-importerad` : quiz.id;
+              customById.set(id, { ...quiz, id });
+              state.deletedQuizIds.delete(id);
+              if (!firstSavedId) firstSavedId = id;
+              importedCount += 1;
+            });
+          } catch (error) {
+            failedFiles.push(`${file.name}: ${error.message}`);
+          }
+        }
+
+        if (importedCount === 0) {
+          throw new Error(failedFiles.join(" · ") || "Inga giltiga quiz hittades.");
+        }
+
+        state.customQuizzes = [...customById.values()];
+        saveCustomQuizzes();
+        saveDeletedQuizIds();
+        state.selectedQuizId = firstSavedId;
+        state.selectedCategories = new Set(getCategories(getQuizById(firstSavedId)));
+        renderQuizList();
+        renderCategories();
+        setStatus(
+          elements.dataStatus,
+          failedFiles.length > 0
+            ? `${importedCount} quiz importerades. ${failedFiles.length} fil(er) misslyckades: ${failedFiles.join(" · ")}`
+            : `${importedCount} quiz importerades och lades till i biblioteket.`,
+          failedFiles.length === 0
+        );
+        elements.startStatus.textContent = importedCount === 1
+          ? "1 importerat quiz är valt"
+          : `${importedCount} importerade quiz lades till`;
+        switchView("startView");
+      } catch (error) {
+        setStatus(elements.dataStatus, `Importen misslyckades: ${error.message}`, false);
+      } finally {
+        elements.importFileInput.value = "";
+      }
+    }
+
+    function normalizeImportedQuizzes(imported) {
+      return imported
+        .filter(isValidQuiz)
+        .map((quiz) => ({
+          id: quiz.id ? createId(quiz.id) : createId(quiz.title),
+          title: quiz.title.trim(),
+          description: quiz.description || "Importerad",
+          source: "Importerad",
+          questions: quiz.questions.map((question) => ({
+            category: question.category.trim(),
+            text: getImportedQuestionText(question).trim(),
+            answer: getImportedAnswer(question).trim(),
+            ...(Array.isArray(question.options) && question.options.length > 0
+              ? { options: normalizeOptions(question.options, getImportedAnswer(question)) }
+              : {})
+          }))
+        }));
+    }
+
+    function parseImportedQuizzes(text, fileName) {
+      const trimmed = text.trim();
+      const isJson = fileName.toLowerCase().endsWith(".json") || trimmed.startsWith("{") || trimmed.startsWith("[");
+      if (isJson) {
+        const parsed = JSON.parse(trimmed);
+        const imported = Array.isArray(parsed)
+          ? parsed
+          : Array.isArray(parsed.quizzes)
+          ? parsed.quizzes
+          : isValidQuiz(parsed)
+          ? [parsed]
+          : null;
+        if (!Array.isArray(imported)) throw new Error("JSON saknar quizlista.");
+        return imported;
+      }
+
+      return parseCsvQuizzes(text);
+    }
+
+    function getImportedQuestionText(question) {
+      return question.text || question.question || question.fråga || question.fraga;
+    }
+
+    function getImportedAnswer(question) {
+      return question.answer || question.correctAnswer || question.korrektSvar || question["korrekt svar"];
+    }
+
+    function parseCsvQuizzes(text) {
+      const rows = parseDelimitedRows(text).filter((row) => row.some((cell) => cell.trim()));
+      if (rows.length < 2) throw new Error("CSV saknar rader.");
+
+      const header = rows[0].map(normalizeHeader);
+      const index = Object.fromEntries(header.map((name, position) => [name, position]));
+      ["quizid", "quiznamn", "kategori", "fraga", "korrekt svar"].forEach((key) => {
+        if (!(key in index)) throw new Error(`CSV saknar kolumn: ${key}`);
+      });
+
+      const grouped = new Map();
+      rows.slice(1).forEach((row) => {
+        const active = getCsvValue(row, index, "aktiv") || "ja";
+        if (normalizeAnswer(active) === "nej") return;
+
+        const id = getCsvValue(row, index, "quizid");
+        const title = getCsvValue(row, index, "quiznamn");
+        const category = getCsvValue(row, index, "kategori");
+        const questionText = getCsvValue(row, index, "fraga");
+        const answer = getCsvValue(row, index, "korrekt svar");
+        const optionText = getCsvValue(row, index, "svarsalternativ");
+        if (!id || !title || !category || !questionText || !answer) return;
+
+        if (!grouped.has(id)) {
+          grouped.set(id, {
+            id,
+            title,
+            description: "Importerad från CSV",
+            source: "Importerad",
+            questions: []
+          });
+        }
+
+        const options = optionText
+          .split("|")
+          .map((option) => option.trim())
+          .filter(Boolean);
+
+        grouped.get(id).questions.push({
+          category,
+          text: questionText,
+          answer,
+          ...(options.length > 0 ? { options: normalizeOptions(options, answer) } : {})
+        });
+      });
+
+      return [...grouped.values()];
+    }
+
+    function parseDelimitedRows(text) {
+      const delimiter = detectDelimiter(text);
+      const rows = [];
+      let row = [];
+      let cell = "";
+      let inQuotes = false;
+
+      for (let index = 0; index < text.length; index += 1) {
+        const char = text[index];
+        const next = text[index + 1];
+
+        if (char === "\"") {
+          if (inQuotes && next === "\"") {
+            cell += "\"";
+            index += 1;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === delimiter && !inQuotes) {
+          row.push(cell);
+          cell = "";
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+          if (char === "\r" && next === "\n") index += 1;
+          row.push(cell);
+          rows.push(row);
+          row = [];
+          cell = "";
+        } else {
+          cell += char;
+        }
+      }
+
+      row.push(cell);
+      rows.push(row);
+      return rows;
+    }
+
+    function detectDelimiter(text) {
+      const firstLine = text.split(/\r?\n/, 1)[0] || "";
+      const candidates = [",", ";", "\t"];
+      return candidates
+        .map((delimiter) => ({
+          delimiter,
+          count: firstLine.split(delimiter).length - 1
+        }))
+        .sort((a, b) => b.count - a.count)[0].delimiter;
+    }
+
+    function normalizeHeader(value) {
+      return String(value || "")
+        .replace(/^\uFEFF/, "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLocaleLowerCase("sv-SE")
+        .replace(/\s+/g, " ");
+    }
+
+    function getCsvValue(row, index, key) {
+      const position = index[key];
+      return typeof position === "number" ? String(row[position] || "").trim() : "";
+    }
+
+    function normalizeOptions(options, answer) {
+      const cleaned = options.map(String).map((option) => option.trim()).filter(Boolean);
+      if (!cleaned.some((option) => normalizeAnswer(option) === normalizeAnswer(answer))) {
+        cleaned.push(answer);
+      }
+      return cleaned;
+    }
+
+    function toggleDeletePanel(showPanel = elements.deletePanel.hidden) {
+      elements.deletePanel.hidden = !showPanel;
+      if (showPanel) renderDeleteQuizList();
+    }
+
+    function renderDeleteQuizList() {
+      if (!elements.deleteQuizList) return;
+
+      const quizzes = getAllQuizzes();
+      elements.deleteQuizList.innerHTML = "";
+      elements.confirmDeleteButton.disabled = quizzes.length === 0;
+
+      if (quizzes.length === 0) {
+        elements.deleteQuizList.innerHTML = `<div class="empty-state">Det finns inga quiz att ta bort.</div>`;
+        return;
+      }
+
+      quizzes.forEach((quiz) => {
+        const categories = getCategories(quiz);
+        const label = document.createElement("label");
+        label.className = "delete-choice";
+        label.innerHTML = `
+          <input type="checkbox" value="${escapeAttribute(quiz.id)}">
+          <span>
+            <strong>${escapeHtml(quiz.title)}</strong>
+            <span>${escapeHtml(quiz.source || "Eget")} · ${quiz.questions.length} frågor · ${categories.length} kategorier</span>
+          </span>
+        `;
+        label.querySelector("input").addEventListener("change", updateDeleteButtonState);
+        elements.deleteQuizList.appendChild(label);
+      });
+
+      updateDeleteButtonState();
+    }
+
+    function updateDeleteButtonState() {
+      const selectedCount = elements.deleteQuizList.querySelectorAll("input:checked").length;
+      elements.confirmDeleteButton.disabled = selectedCount === 0;
+      elements.confirmDeleteButton.textContent = selectedCount === 0
+        ? "Ta bort markerade"
+        : selectedCount === 1
+        ? "Ta bort 1 quiz"
+        : `Ta bort ${selectedCount} quiz`;
+    }
+
+    function deleteSelectedQuizzes() {
+      const selectedIds = [...elements.deleteQuizList.querySelectorAll("input:checked")]
+        .map((input) => input.value);
+
+      if (selectedIds.length === 0) {
+        setStatus(elements.dataStatus, "Välj minst ett quiz att ta bort.", false);
+        return;
+      }
+
+      const selectedIdSet = new Set(selectedIds);
+      const builtInIds = new Set(DEFAULT_QUIZZES.map((quiz) => quiz.id));
+      const deletedTitles = getAllQuizzes()
+        .filter((quiz) => selectedIdSet.has(quiz.id))
+        .map((quiz) => quiz.title);
+
+      state.customQuizzes = state.customQuizzes.filter((quiz) => !selectedIdSet.has(quiz.id));
+      selectedIds.forEach((id) => {
+        if (builtInIds.has(id)) state.deletedQuizIds.add(id);
+      });
+
+      saveCustomQuizzes();
+      saveDeletedQuizIds();
+      syncSelectedQuiz();
+      renderQuizList();
+      renderCategories();
+      renderDeleteQuizList();
+      setStatus(elements.dataStatus, `${deletedTitles.length} quiz togs bort: ${deletedTitles.join(", ")}`, true);
+    }
+
+    function setStatus(element, message, isGood) {
+      element.textContent = message;
+      element.className = `status ${isGood ? "is-good" : "is-bad"}`;
+    }
+
+    function createId(value) {
+      const base = String(value)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 42);
+      return base || `quiz-${Date.now()}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeAttribute(value) {
+      return escapeHtml(value).replace(/`/g, "&#096;");
+    }
+
+    elements.tabs.forEach((button) => {
+      button.addEventListener("click", () => switchView(button.dataset.viewTarget));
+    });
+
+    elements.startQuizButton.addEventListener("click", startQuiz);
+    elements.submitAnswerButton.addEventListener("click", checkAnswer);
+    elements.nextQuestionButton.addEventListener("click", nextQuestion);
+    elements.quitQuizButton.addEventListener("click", () => switchView("startView"));
+    elements.restartButton.addEventListener("click", () => switchView("startView"));
+    elements.exportButton.addEventListener("click", exportQuizzes);
+    elements.importFileInput.addEventListener("change", (event) => importQuizFiles(event.target.files));
+    elements.openDeletePanelButton.addEventListener("click", () => toggleDeletePanel());
+    elements.confirmDeleteButton.addEventListener("click", deleteSelectedQuizzes);
+    elements.cancelDeleteButton.addEventListener("click", () => toggleDeletePanel(false));
+
+    renderQuizList();
+    renderCategories();
+  </script>
+</body>
+</html>
